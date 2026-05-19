@@ -20,7 +20,8 @@ def ansi_ljust(s, width):
 
 async def bad_channel_check(ctx, bot) :
     if ctx.channel is not None and ctx.channel.id != bot.normal_channel_id :
-        await ctx.send("""Please use this command in the normal channel to avoid spamming other channels.\n\If you think this is an error, please contact the administrator.""")
+        bot.logger.warning(f"Current channel id is {ctx.channel.id} but normal channel id is {bot.normal_channel_id}.")
+        await ctx.send("""Please use this command in the normal channel to avoid spamming other channels.\nIf you think this is an error, please contact the administrator.""")
         return True
     return False
 

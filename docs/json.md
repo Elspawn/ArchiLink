@@ -135,7 +135,7 @@ The Discord channel ID where standard bot messages will be sent. To get the ID o
 "ping_channel_id": ""
 ```
 
-The Discord channel ID used for item pings or important notifications.
+The Discord channel ID used for item pings or important notifications. If not setup, `normal_channel_id` will be used
 
 ### Example
 
