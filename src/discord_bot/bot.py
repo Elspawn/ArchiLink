@@ -15,9 +15,9 @@ def create_bot(bot_client, message_queue, ping_queue, dm_queue, config, logger):
     bot.messages_to_send = message_queue
     bot.ping_queue = ping_queue
     bot.dm_queue = dm_queue
-    bot.normal_channel_id = config["DiscordConfig"]["normal_channel_id"]
-    bot.ping_channel_id = config["DiscordConfig"]["ping_channel_id"] or config["DiscordConfig"]["normal_channel_id"]
-    bot.debug_channel_id = config["DiscordConfig"]["debug_channel_id"]
+    bot.normal_channel_id = int(config["DiscordConfig"]["normal_channel_id"])
+    bot.ping_channel_id = int(config["DiscordConfig"]["ping_channel_id"]) if config["DiscordConfig"]["ping_channel_id"] else bot.normal_channel_id
+    bot.debug_channel_id = int(config["DiscordConfig"]["debug_channel_id"])
     bot.app_token = config["DiscordConfig"]["app_token"]
     bot.admins = config["DiscordConfig"]["admin_ids"]
     if bot.admins == [] or bot.admins is None:

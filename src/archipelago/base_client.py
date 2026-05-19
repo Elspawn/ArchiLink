@@ -11,9 +11,9 @@ class ArchipelagoClient(ABC) :
     items_handling: int = 0b000 # Does not receive any items
     
     def __init__(self, config: dict[str, any], logger: logging.Logger) :
-        self.client_url : str = config["ArchipelagoConfig"]["client_url"]
-        self.client_port : str = config["ArchipelagoConfig"]["client_port"]
-        self.password : str = config["ArchipelagoConfig"]["password"]
+        self.client_url : str = str(config["ArchipelagoConfig"]["client_url"])
+        self.client_port : str = str(config["ArchipelagoConfig"]["client_port"])
+        self.password : str = str(config["ArchipelagoConfig"]["password"])
         self.password = self.password if self.password else ""
         self.uuid : int = uuid.getnode()
         self.ap_connection = None
