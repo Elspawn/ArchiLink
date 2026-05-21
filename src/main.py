@@ -18,6 +18,9 @@ async def main():
     bot_client = BotClient(config, message_queue, ping_queue, dm_queue, logger)
     bot = create_bot(bot_client, message_queue, ping_queue, dm_queue, config, logger)
 
+    bot.archipelago_client = bot_client
+    bot.player_db = bot_client.player_db
+
     try:
         await asyncio.gather(
             bot_client.run(),

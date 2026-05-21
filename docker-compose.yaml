@@ -1,0 +1,7 @@
+services:
+  archilink:
+    build: .
+    container_name: archilink-bot
+    restart: unless-stopped
+    volumes:
+      - ./config.json:/app/config.json
