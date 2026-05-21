@@ -605,6 +605,21 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
                 "description": "Generate a progression graph for all players.",
                 "details": "Shows completion percentages and checked locations for every player."
             },
+            "setport": {
+                "usage": "`!setport <port_number>`",
+                "description": "Change the Archipelago server port (Admin only).",
+                "details": "Updates the port in config.json, clears the local player database, and forces the client to reconnect to the new room."
+            },
+            "restart": {
+                "usage": "`!restart`",
+                "description": "Restart the bot container (Admin only).",
+                "details": "Closes active connections and shuts down the process."
+            },
+            "disconnect": {
+                "usage": "`!disconnect`",
+                "description": "Disconnect the bot from the Archipelago server (Admin only).",
+                "details": "Stops the network client and disables automatic reconnection. The bot remains online on Discord."
+            },
             "help": {
                 "usage": "`!help [command]`",
                 "description": "Display help information.",
