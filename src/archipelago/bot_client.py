@@ -17,6 +17,7 @@ class BotClient(ArchipelagoClient) :
         super().__init__(config, logger=logger)
         # Make sure data directory exists
         os.makedirs(config["DatabaseConfig"]["data_directory"], exist_ok=True)
+        self.config = config
         self.tags = set({'TextOnly', 'Tracker', 'DeathLink'})
         self.slot_name : str = config["ArchipelagoConfig"]["bot_slot"]
         self.ap_connection = None

@@ -1,7 +1,10 @@
 from archipelago.tracker_client import TrackerClient
+from world.world import WorldConfigSelection
 import asyncio
 
 async def is_admin(ctx, bot):
+    if bot.admins is None or bot.admins == []:
+        return True
     if str(ctx.author.id) in bot.admins:
         return True
     else:
