@@ -21,7 +21,7 @@ async def main():
     datadir = os.getenv("DATA_DIRECTORY", "data")
     os.makedirs(datadir, exist_ok=True)
     discord_bot = create_bot(logger)
-    world_manager = await WorldManager.create(discord_bot, logger, datadir)
+    world_manager = WorldManager(discord_bot, logger, datadir)
     discord_bot.world_manager = world_manager # Give the bot a reference to the world manager so it can route messages to the correct world based on the channel they come from
     
     # Add command to create a new world :

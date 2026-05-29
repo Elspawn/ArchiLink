@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord_bot.commands import setup_commands
 from discord_bot.admin_commands import setup_admin_commands
+from discord_bot.events import setup_events
 import os
 
 def create_bot(logger) :
@@ -16,5 +17,6 @@ def create_bot(logger) :
     bot.app_token = os.getenv("DISCORD_APP_TOKEN")
     bot.remove_command('help')
     setup_commands(bot)
+    setup_events(bot)
     setup_admin_commands(bot) # TODO : adapt admin commands
     return bot

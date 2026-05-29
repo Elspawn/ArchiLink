@@ -11,14 +11,8 @@ class WorldManager:
         self.bot = discord_bot
         self.logger = logger
         self.datadir = datadir
-        
-    @classmethod
-    async def create(cls, discord_bot, logger, datadir="./data"):
-        self = cls(discord_bot, logger, datadir)
-        await self.load_worlds()
-        logger.info(f"{len(self.worlds)} worlds loaded, ready to accept commands.")
-        return self
-        
+        self.loaded = False
+                
     async def create_world(self, world_data_dir, config):
         world_id = world_data_dir.split("/")[-1]
         message_queue = asyncio.Queue()
@@ -68,7 +62,7 @@ class WorldManager:
         
     def get_world_from_channel(self, channel_id: int):
         for _ , session in self.worlds.items():
-            if channel_id == session.normal_channel_id or channel_id == session.ping_channel_id:
+            if channel_id == session.normal_channel_id :
                 return session
         return None
     
