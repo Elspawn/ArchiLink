@@ -13,16 +13,17 @@ import os
 
 
 class BotClient(ArchipelagoClient) :
-    def __init__(self, config: dict[str, any], message_queue: asyncio.Queue, ping_queue: asyncio.Queue, dm_queue: asyncio.Queue, logger: logging.Logger) :
+    def __init__(self, config: dict[str, any], message_queue: asyncio.Queue, ping_queue: asyncio.Queue, dm_queue: asyncio.Queue, logger: logging.Logger, datadir: str) :
         super().__init__(config, logger=logger)
-        # Make sure data directory exists
-        os.makedirs(config["DatabaseConfig"]["data_directory"], exist_ok=True)
         self.config = config
+        # Save config used for this world :
+        with open(os.path.join(datadir, "config.json"), "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=4)
         self.tags = set({'TextOnly', 'Tracker', 'DeathLink'})
         self.slot_name : str = config["ArchipelagoConfig"]["bot_slot"]
         self.ap_connection = None
-        self.player_db = PlayerDB(config["DatabaseConfig"]["data_directory"]+"/players.json")
-        self.discord_db = DiscordDB(config["DatabaseConfig"]["data_directory"]+"/discord_profiles.json", self.player_db)
+        self.player_db = PlayerDB(datadir+"/players.json")
+        self.discord_db = DiscordDB(datadir+"/discord_profiles.json", self.player_db)
         self.datapackage = None
         self.datapackage_reversed = False 
         self.lock = asyncio.Lock() # Lock to protect shared resources
@@ -30,8 +31,8 @@ class BotClient(ArchipelagoClient) :
         self.messages_to_send = message_queue
         self.ping_queue = ping_queue
         self.dm_queue = dm_queue
-        self.datapackage_path = os.path.join(config["DatabaseConfig"]["data_directory"], "datapackage.json")
-        self.reversed_datapackage_path = os.path.join(config["DatabaseConfig"]["data_directory"], "reversed_datapackage.json")
+        self.datapackage_path = os.path.join(datadir, "datapackage.json")
+        self.reversed_datapackage_path = os.path.join(datadir, "reversed_datapackage.json")
         self.custom_deathlink_flavor = config["AdvancedConfig"].get("custom_deathlink_flavor", False)
     
     async def process_messages(self):

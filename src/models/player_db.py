@@ -62,8 +62,8 @@ class PlayerDB :
         player.discord_id = discord_id
         self.players_by_discord[discord_id] = player
 
-    def save_db(self, file_path: str) -> None :
-        with open(file_path, "w") as f:
+    def save_db(self) -> None :
+        with open(self.file_path, "w") as f:
             json.dump({player_name: player.save() for player_name, player in self.players_by_name.items()}, f, indent=4)
 
     def load_db(self, file_path: str) -> None :
@@ -84,4 +84,4 @@ class PlayerDB :
                         if item.player_recieving is not None:
                             item.player_recieving = self.get_player_by_name(item.player_recieving)
         except FileNotFoundError:
-            print(f"No existing database found at {file_path}. Starting with an empty database.")
+            print(f"No existing database found at {self.file_path}. Starting with an empty database.")

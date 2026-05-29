@@ -1,5 +1,6 @@
 import asyncio
 from archipelago.bot_client import BotClient
+from discord_bot import bot
 from discord_bot.commands import send_new_items
 
 class WorldManager:
@@ -9,7 +10,8 @@ class WorldManager:
         self.logger = logger
         self.datadir = datadir
         
-    async def create_world(self, world_id, config):
+    async def create_world(self, world_data_dir, config):
+        world_id = world_data_dir.split("/")[-1]
         message_queue = asyncio.Queue()
         ping_queue = asyncio.Queue()
         dm_queue = asyncio.Queue()
@@ -20,7 +22,7 @@ class WorldManager:
             ping_queue = ping_queue,
             dm_queue = dm_queue,
             logger = self.logger,
-            datadir = self.datadir
+            datadir = world_data_dir
         )
         
         session = WorldSession(
@@ -37,12 +39,14 @@ class WorldManager:
         await session.start()
         session.tasks.append(asyncio.create_task(bot_client.run()))
         self.worlds[world_id] = session
-        return session
+        return 
     
     async def stop_world(self, world_id: str):
         session = self.worlds.get(world_id)
         if not session:
             return
+        session.bot_client.player_db.save_db()
+        session.bot_client.discord_db.save_db()
         await session.bot_client.stop()
         await session.stop()
         del self.worlds[world_id]
@@ -52,6 +56,13 @@ class WorldManager:
             if channel_id == session.normal_channel_id or channel_id == session.ping_channel_id:
                 return session
         return None
+    
+    async def stop_all_worlds(self):
+        world_ids = list(self.worlds.keys())
+        for world_id in world_ids:
+            self.logger.info(f"Stopping world {world_id}")
+            await self.stop_world(world_id)
+
         
 class WorldSession:
 
