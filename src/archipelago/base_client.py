@@ -22,7 +22,7 @@ class ArchipelagoClient(ABC) :
         self.slot_name : str = ""
         self.tags : set[str] = set()
         self.running = True
-        self.nb_workers = 12
+        self.nb_workers = 6
         self.workers_started = False
         self.game = ''
         self.worker_tasks = []

@@ -1,4 +1,6 @@
 import asyncio
+import os
+import json
 from archipelago.bot_client import BotClient
 from discord_bot import bot
 from discord_bot.commands import send_new_items
@@ -9,6 +11,13 @@ class WorldManager:
         self.bot = discord_bot
         self.logger = logger
         self.datadir = datadir
+        
+    @classmethod
+    async def create(cls, discord_bot, logger, datadir="./data"):
+        self = cls(discord_bot, logger, datadir)
+        await self.load_worlds()
+        logger.info(f"{len(self.worlds)} worlds loaded, ready to accept commands.")
+        return self
         
     async def create_world(self, world_data_dir, config):
         world_id = world_data_dir.split("/")[-1]
@@ -51,21 +60,31 @@ class WorldManager:
         await session.stop()
         del self.worlds[world_id]
         
+    async def stop_all_worlds(self):
+        world_ids = list(self.worlds.keys())
+        for world_id in world_ids:
+            self.logger.info(f"Stopping world {world_id}")
+            await self.stop_world(world_id)
+        
     def get_world_from_channel(self, channel_id: int):
         for _ , session in self.worlds.items():
             if channel_id == session.normal_channel_id or channel_id == session.ping_channel_id:
                 return session
         return None
     
-    async def stop_all_worlds(self):
-        world_ids = list(self.worlds.keys())
-        for world_id in world_ids:
-            self.logger.info(f"Stopping world {world_id}")
-            await self.stop_world(world_id)
-
+    async def load_worlds(self):
+        if not os.path.exists(self.datadir):
+            return
+        for world_id in os.listdir(self.datadir):
+            world_data_dir = os.path.join(self.datadir, world_id)
+            if os.path.isdir(world_data_dir):
+                config_path = os.path.join(world_data_dir, "config.json")
+                if os.path.exists(config_path):
+                    with open(config_path, "r", encoding="utf-8") as f:
+                        config = json.load(f)
+                        await self.create_world(world_data_dir, config)
         
 class WorldSession:
-
     def __init__(
         self,
         bot,
@@ -108,6 +127,7 @@ class WorldSession:
                 self.logger.exception(e)
                 
     async def start(self):
+        await self.bot.wait_until_ready()
         normal_channel = self.bot.get_channel(self.normal_channel_id)
         if normal_channel:
             self.tasks.append(asyncio.create_task(self.discord_sender(normal_channel, self.message_queue)))
