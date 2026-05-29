@@ -36,11 +36,11 @@ You will need to register again.")
         else :  
             print("DiscordDB initialized empty.")
             
-    def save_db(self, file_path: str) -> None:
+    def save_db(self) -> None:
         data = {
             "discord_ids": {str(id): profile.save() for id, profile in self.discord_ids.items()}
         }
-        with open(file_path, 'w') as f:
+        with open(self.file_path, 'w') as f:
             json.dump(data, f, indent=4)
     
     def load_db(self, file_path: str) -> None:

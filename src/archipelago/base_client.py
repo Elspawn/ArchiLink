@@ -22,7 +22,7 @@ class ArchipelagoClient(ABC) :
         self.slot_name : str = ""
         self.tags : set[str] = set()
         self.running = True
-        self.nb_workers = 4
+        self.nb_workers = 6
         self.workers_started = False
         self.game = ''
         self.worker_tasks = []
@@ -47,7 +47,7 @@ class ArchipelagoClient(ABC) :
             print(f"Error sending message: {e}")
     
     async def send_connect(self) -> None:
-        print("-- Sending `Connect` packet to log in to server.")
+        self.logger.info("-- Sending `Connect` packet to log in to server.")
         payload = {
             'cmd': 'Connect',
             'game': self.game,
@@ -74,14 +74,20 @@ class ArchipelagoClient(ABC) :
                     raw = await self.ap_connection.recv()
                     messages = json.loads(raw)
                     for message in messages:
-                        print(f"Received message: {message}")
+                        self.logger.debug(f"Received message from server :\n{message}")
                         await self.message_queue.put(message)
             except ConnectionClosedOK:
-                print("Connection closed gracefully.")
+                self.logger.info("Connection closed gracefully.")
                 break
+            except asyncio.CancelledError:
+                self.logger.info("Archipelago client shutting down...")
+                # nettoyage éventuel
+                if self.ap_connection:
+                    await self.ap_connection.close()
+                raise
             except Exception as e:
-                print(f"Connection error: {e}")
-                await asyncio.sleep(5)
+                self.logger.error(f"Connection error: {e}")
+                await asyncio.sleep(30)
                 
     async def stop(self) :
         self.running = False

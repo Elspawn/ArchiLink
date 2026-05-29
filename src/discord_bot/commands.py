@@ -19,29 +19,22 @@ def strip_ansi(s):
 def ansi_ljust(s, width):
     return s + " " * (width - len(strip_ansi(s)))
 
-async def bad_channel_check(ctx, bot) :
-    if ctx.channel is not None and ctx.channel.id != bot.normal_channel_id :
-        bot.logger.warning(f"Current channel id is {ctx.channel.id} but normal channel id is {bot.normal_channel_id}.")
-        await ctx.send("""Please use this command in the normal channel to avoid spamming other channels.\nIf you think this is an error, please contact the administrator.""")
-        return True
-    return False
-
-async def send_new_items(bot, player_id) :
-    player = bot.bot_client.player_db.get_player_by_discord_id(player_id)
+async def send_new_items(bot, session, player_id) :
+    player = session.bot_client.player_db.get_player_by_discord_id(player_id)
     user = await bot.fetch_user(player_id)
     if user.dm_channel is None :
         await user.create_dm() 
     if player is None :
-        bot.logger.error(f"Player with discord id {player_id} not found.")
+        session.bot_client.logger.error(f"Player with discord id {player_id} not found.")
         return
     elif len(player.new_items) == 0 :
-        bot.logger.info(f"Player found : {player.player_name} but no new items to send.")
+        session.bot_client.logger.info(f"Player found : {player.player_name} but no new items to send.")
         # DM player if no new items, to avoid spamming the channel
         await user.dm_channel.send("You have not received any new items since the last time you checked.")
     else :
-        bot.logger.info(f"Player found : {player.player_name} with {len(player.new_items)} new items to send.")
+        session.bot_client.logger.info(f"Player found : {player.player_name} with {len(player.new_items)} new items to send.")
         msg = "```ansi\n"
-        async with bot.bot_client.lock:
+        async with session.bot_client.lock:
             items = list(player.new_items)
             player.new_items.clear()
         l1 = max(len("You"), len(player.player_name)) + 1
@@ -60,16 +53,24 @@ async def send_new_items(bot, player_id) :
         if msg == f"```ansi\n```" :
             return
         await user.dm_channel.send(msg)
-
+        
+async def check_world_channel(bot, channel_id) :
+    session = bot.world_manager.get_world_from_channel(channel_id)
+    if session is None :
+        bot.custom_logger.warning(f"Received message from channel {channel_id} but no world is associated to this channel.")
+        return None
+    return session
 
 def setup_commands(bot):
     
     @bot.command(name='hint')
     async def hint(ctx, *, hint: str):
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
-        bot.logger.info(f"Hint command called with hint : {hint}")
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(ctx.author.id)
+        bot.custom_logger.info(f"Hint command called with hint : {hint}")
+        discord_profil = session.bot_client.discord_db.get_discord_profile(ctx.author.id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first using `!register <player_name>` command.")
             return
@@ -78,8 +79,8 @@ def setup_commands(bot):
             hint_client_instance = HintClient(player.player_name, 
                                             player.player_game, 
                                             hint, 
-                                            bot.bot_client,
-                                            bot.config)
+                                            session.bot_client,
+                                            session.bot_client.config)
             asyncio.create_task(hint_client_instance.run())
             await hint_client_instance.finished_event.wait()
             # Send all messages in the queue :
@@ -90,7 +91,7 @@ def setup_commands(bot):
                     if "(found)" in message : # Do not add the possibility to add to todo list if already found
                         await ctx.send(message)
                         continue
-                    button = Button(item, bot.bot_client)
+                    button = Button(item, session.bot_client)
                     message = await ctx.send(message, view=button)
                     button.message = message
                 except :
@@ -98,46 +99,52 @@ def setup_commands(bot):
             # Terminate hint client
             await hint_client_instance.stop()
         except Exception as e :
-            bot.logger.error(f"Error sending hint: {e}")
+            session.bot_client.logger.error(f"Error sending hint: {e}")
             await ctx.send(f"An error occurred while sending the hint. Please try again later.")
 
     @bot.command(name='players')
     async def players(ctx):
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
-        players = bot.bot_client.player_db.get_all_players_names()
+        players = session.bot_client.player_db.get_all_players_names()
         await ctx.send(f"Players in this multiworld are : {', '.join(players)}")
 
     @bot.command(name='register')
     async def register(ctx, *, player_name: str) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         # Check if player name is valid
-        if player_name not in bot.bot_client.player_db.get_all_players_names() :
+        if player_name not in session.bot_client.player_db.get_all_players_names() :
             await ctx.send(f"Player name {player_name} not found. Please check the spelling and try again.\n\
-Available player names are : {', '.join(bot.bot_client.player_db.get_all_players_names())}")
-        elif bot.bot_client.player_db.get_player_by_name(player_name).discord_id is not None :
-            player = bot.bot_client.player_db.get_player_by_name(player_name)
+Available player names are : {', '.join(session.bot_client.player_db.get_all_players_names())}")
+        elif session.bot_client.player_db.get_player_by_name(player_name).discord_id is not None :
+            player = session.bot_client.player_db.get_player_by_name(player_name)
             await ctx.send(f"Player {player_name} is already registered by {player.discord_id}.\nIf you think this is an error, please contact the administrator.")
         else :
-            discord_profil = bot.bot_client.discord_db.get_discord_profile(ctx.author.id)
+            discord_profil = session.bot_client.discord_db.get_discord_profile(ctx.author.id)
             if discord_profil is None :
                 discord_profil = DiscordProfile(ctx.author.name, ctx.author.id)
-            player = bot.bot_client.player_db.get_player_by_name(player_name)
+            player = session.bot_client.player_db.get_player_by_name(player_name)
             # Link player and discord profile
             discord_profil.slots.append(player)
             discord_profil.current_slot = player
-            bot.bot_client.discord_db.add_discord_profile(discord_profil)
-            bot.bot_client.player_db.set_discord_id(player, discord_profil.id)
+            session.bot_client.discord_db.add_discord_profile(discord_profil)
+            session.bot_client.player_db.set_discord_id(player, discord_profil.id)
             await ctx.send(f"Player {player_name} successfully registered to discord user {ctx.author.name}#{ctx.author.discriminator}.\n\
 You are currently registered to : {', '.join([p.player_name for p in discord_profil.slots])}")
 
     @bot.command(name='unregister')
     async def unregister(ctx, *, player_name: str = None) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
             await ctx.send(f"You are not registered to any player. Please register first using `!register <player_name>` command.")
@@ -145,24 +152,26 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
         elif player_name is not None and player_name not in registered_players :
             await ctx.send(f"You are not registered to player {player_name}. You are currently registered to : {', '.join(registered_players)}.")
         elif player_name is not None and player_name in registered_players :
-            player = bot.bot_client.player_db.get_player_by_name(player_name)
+            player = session.bot_client.player_db.get_player_by_name(player_name)
             # Unlink player and discord profile
             discord_profil.slots.remove(player)
-            bot.bot_client.player_db.set_discord_id(player, None)
+            session.bot_client.player_db.set_discord_id(player, None)
             await ctx.send(f"Player {player_name} successfully unregistered from discord user {ctx.author.name}#{ctx.author.discriminator}.")
         else :
             # Unregister from all players
             for player in discord_profil.slots:
-                bot.bot_client.player_db.set_discord_id(player, None)
+                session.bot_client.player_db.set_discord_id(player, None)
             discord_profil.slots.clear()
             await ctx.send(f"All players successfully unregistered from discord user {ctx.author.name}#{ctx.author.discriminator}.")
             
     @bot.command(name='current')
     async def current(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None or discord_profil.slots == [] :
             await ctx.send(f"You are not registered to any player. Please register first using `!register <player_name>` command.")
             return
@@ -172,10 +181,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
     
     @bot.command(name='switch')
     async def switch(ctx, *, player_name: str = None) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")    
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None or discord_profil.slots == [] :
             await ctx.send(f"You are not registered to any player. Please register first using `!register <player_name>` command.")
             return
@@ -193,32 +204,36 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
         elif player_name not in [p.player_name for p in discord_profil.slots] :
             await ctx.send(f"You are not registered to player {player_name}. You are currently registered to : {', '.join([p.player_name for p in discord_profil.slots])}.")
         else :
-            player = bot.bot_client.player_db.get_player_by_name(player_name)
+            player = session.bot_client.player_db.get_player_by_name(player_name)
             discord_profil.current_slot = player
             await ctx.send(f"Successfully switched to player {player_name}.")
 
     @bot.command(name='new')
     async def new(ctx, all: str = None) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None or discord_profil.slots == [] :
             await ctx.send(f"You are not registered to any player. Please register first using `!register <player_name>` command.")
             return
         elif all == "all" :
             for player in discord_profil.slots :
-                await send_new_items(bot, player.discord_id)
+                await send_new_items(bot, session, player.discord_id)
         else :
             current_player = discord_profil.current_slot
-            await send_new_items(bot, current_player.discord_id)
+            await send_new_items(bot, session, current_player.discord_id)
             
     @bot.command(name='enableping')
     async def enableping(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
@@ -229,10 +244,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
     
     @bot.command(name='disableping')
     async def disableping(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
@@ -243,10 +260,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
             
     @bot.command(name='enablenewitems')
     async def enablenewitems(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
@@ -257,10 +276,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
             
     @bot.command(name='disablenewitems')
     async def disablenewitems(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
@@ -271,10 +292,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
 
     @bot.command(name='todo')
     async def todo(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
-        bot.logger.info("todo command called")
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(ctx.author.id)
+        bot.custom_logger.info("todo command called")
+        discord_profil = session.bot_client.discord_db.get_discord_profile(ctx.author.id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
@@ -285,8 +308,8 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
             flavor = get_empty_todolist_flavor()
             await ctx.send(f"{player.player_name} : {flavor}")
         else :
-            bot.logger.info(f"Player found : {player.player_name} with {len(player.todolist)} items in todo list.")
-            async with bot.bot_client.lock:
+            bot.custom_logger.info(f"Player found : {player.player_name} with {len(player.todolist)} items in todo list.")
+            async with session.bot_client.lock:
                 items = list(player.todolist)
             flavor = get_todolist_flavor()
             msg = f"```ansi\n{flavor}\n\n"
@@ -308,10 +331,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
         
     @bot.command(name="clearTodo")
     async def clear_todo(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
@@ -320,22 +345,24 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
         else :
-            async with bot.bot_client.lock:
+            async with session.bot_client.lock:
                 player.todolist.clear()
             msg = get_clear_todolist_flavor()
             await ctx.send(msg)
             
     @bot.command(name='removeTodo')
     async def remove_todo(ctx, *, item_name: str) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
         player = discord_profil.current_slot
-        async with bot.bot_client.lock:
+        async with session.bot_client.lock:
             item_to_remove = None
             for item in player.todolist :
                 if item.item_name.lower() == item_name.lower() :
@@ -349,18 +376,20 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
                     
     @bot.command(name='wishlist')
     async def wishlist(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
         player = discord_profil.current_slot
-        bot.logger.info(f"Wishlist command called for player {player.player_name}")
+        session.bot_client.logger.info(f"Wishlist command called for player {player.player_name}")
         wishlist = []
-        for other_player in bot.bot_client.player_db.get_all_players() :
-            async with bot.bot_client.lock:
+        for other_player in session.bot_client.player_db.get_all_players() :
+            async with session.bot_client.lock:
                 for item in other_player.todolist:
                     if item.player_recieving.player_name == player.player_name :
                         wishlist.append(item)
@@ -386,10 +415,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
             
     @bot.command(name='wastedOnArchipelago')
     async def wastedOnArchipelago(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
@@ -402,10 +433,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
             
     @bot.command(name='deaths')
     async def deaths(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
@@ -414,10 +447,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
     
     @bot.command(name='deathgraph')
     async def deathgraph(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         discord_id = ctx.author.id
-        discord_profil = bot.bot_client.discord_db.get_discord_profile(discord_id)
+        discord_profil = session.bot_client.discord_db.get_discord_profile(discord_id)
         if discord_profil is None :
             await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
             return
@@ -442,10 +477,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
                 
     @bot.command(name='globaldeaths')
     async def globaldeaths(ctx) :
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         deaths_dict = {}
-        for player in bot.bot_client.player_db.get_all_players() :
+        for player in session.bot_client.player_db.get_all_players() :
             deaths_dict[player.player_name] = len(player.deaths)
         plt.figure(figsize=(10,5))
         plt.bar(deaths_dict.keys(), deaths_dict.values())
@@ -460,10 +497,12 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
         
     @bot.command(name='progressGraph')
     async def progress_graph(ctx):
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("This channel is not associated to any world. Please use the commands in the correct channel or create a new world with !newWorld.")
             return
         percentage_dict = {}; checks_dict = {}
-        for player in bot.bot_client.player_db.get_all_players() :
+        for player in session.bot_client.player_db.get_all_players() :
             if player.total_locations <= 0 :
                 await ctx.send(f"Error retrieving total locations for player {player.player_name}. Cannot compute progress graph.")
                 return
@@ -499,7 +538,9 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
 
     @bot.command(name='help')
     async def help(ctx, command: str = None):
-        if await bad_channel_check(ctx, bot):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None :
+            await ctx.send("To create a new world, use the !newWorld command.")
             return
 
         commands_help = {
