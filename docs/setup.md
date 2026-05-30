@@ -83,6 +83,20 @@ Under **Install Link**:
 
 Your bot is now registered and ready to use.
 
+## 5. Add Administrator Permissions to the Bot (Optional)
+
+During world configuration, you may provide sensitive information such as an IP address or password. Granting administrator permissions to the bot allows it to automatically delete messages containing this data during setup phases, improving security.
+
+> ⚠️ This step is optional but recommended if you frequently configure worlds with sensitive information in chat.
+
+### How to enable it
+
+1. Open your Discord server settings  
+2. Go to the **Roles** section  
+3. Find the role associated with your bot  
+4. Click **Edit Role**  
+5. Under the **Permissions** tab, enable **Administrator**
+
 ---
 
 # Setup the Archipelago MultiWorld
@@ -119,17 +133,30 @@ pip install -r requirements.txt
 
 ---
 
-# Configuration
+# Configure Environment Variables
 
-Copy the configuration template:
+Create a `.env` file at the root of the project.
 
-```bash
-cp config.template.json config.json
+You can either:
+
+* Rename `.env.template` to `.env`
+* Or create a new `.env` file and copy the contents of `.env.template`
+
+Fill in the following values:
+
+```env
+DISCORD_APP_TOKEN=your_discord_bot_token
+DISCORD_COMMAND_PREFIX=! 
+DATA_DIRECTORY=/path/to/worlds/data
 ```
 
-Then open `config.json` and fill in all required fields.
+### Variables description
 
-See [JSON configuration reference](https://github.com/TanguyBod/ArchiLink/blob/main/docs/json.md) for a complete description of each field.
+| Variable                 | Description                                                              |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `DISCORD_APP_TOKEN`      | The Discord bot token obtained during bot creation.                      |
+| `DISCORD_COMMAND_PREFIX` | The prefix used for bot commands (for example `!`).                      |
+| `DATA_DIRECTORY`         | Directory where ArchiLink will store world data and configuration files. |
 
 ---
 
@@ -170,5 +197,7 @@ pip install -r requirements.txt
 # Done 🎉
 
 Your bot is now setup and ready to use.
+
+Your first interaction with it should be to add a new MultiWorld. To do so, use !newWorld command. Then you can either configure the world to track manually or uploading a json file. If you want to upload a json file, there is a template to fill :`config.template.json`
 
 Have fun!

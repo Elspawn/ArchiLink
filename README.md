@@ -16,6 +16,8 @@ Its main features are the following:
 - 🔔 Get notified when your required item is found  
 - 🤝 Improve coordination and teamwork in multiworld sessions  
 
+[Discord Link](https://discord.gg/7dEp4cMnWF)
+
 ## Docker
 
 If you plan to use this bot inside docker follow instructions [here](https://github.com/TanguyBod/ArchiLink/blob/main/docs/docker.md), otherwise go to the next section.
@@ -33,7 +35,7 @@ Here is the list of commands to manage worlds :
 | Command | Description |
 |--------|------------|
 | `!newWorld` | Initializes the bot to follow an Archipelago multiworld. Two way to configure the world are available : manual configuration or
-dragging and dropping a config.json file. This command can be used anywhere. |
+uploading a config.json file. This command can be used anywhere. |
 | `!delete_world` | Delete the world associated to the current channel (the bot will no longer track progress) |
 
 Once a world is instanciated, you can interact with it with these commands :
