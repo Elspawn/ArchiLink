@@ -16,9 +16,23 @@ Its main features are the following:
 - 🔔 Get notified when your required item is found  
 - 🤝 Improve coordination and teamwork in multiworld sessions  
 
-[Discord Link](https://discord.gg/7dEp4cMnWF)
+[Discord Link](https://discord.gg/7dEp4cMnWF) for any questions or news about the bot.
 
-## 
+## Use the Hosted Bot
+
+If you don't want to host the bot yourself, or are unable to run it on your own infrastructure, you can use the publicly hosted ArchiLink bot.
+
+Simply invite it to your Discord server using the link below :
+
+**[Invite ArchiLink](https://discord.com/oauth2/authorize?client_id=1487801706732322997&permissions=8&scope=bot)**
+
+Once the bot has been added to your server, you can create and configure an Archipelago multiworld by using the following command :
+
+```text
+!newWorld
+```
+
+The setup wizard will guide you through the configuration process. If you have any question, contact me.
 
 ## Docker
 
