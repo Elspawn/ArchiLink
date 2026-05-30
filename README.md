@@ -16,6 +16,10 @@ Its main features are the following:
 - 🔔 Get notified when your required item is found  
 - 🤝 Improve coordination and teamwork in multiworld sessions  
 
+## Docker
+
+If you plan to use this bot inside docker follow instructions [here](https://github.com/TanguyBod/ArchiLink/blob/main/docs/docker.md), otherwise go to the next section.
+
 ## Setup
 
 All setup steps are described [here](https://github.com/TanguyBod/ArchiLink/blob/main/docs/setup.md).
