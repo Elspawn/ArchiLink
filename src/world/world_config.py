@@ -96,8 +96,11 @@ class WorldConfigSelection(discord.ui.View):
                 )
                 return
             self.data.update(data)
-            # Confirm reception and delete the user's message to avoid clutter
-            await message.delete()
+            # Confirm reception and try to delete the user's message to avoid clutter
+            try:
+                await message.delete()
+            except discord.Forbidden:
+                pass
             await interaction.followup.send(
                 "Configuration imported successfully.",
                 ephemeral=True
