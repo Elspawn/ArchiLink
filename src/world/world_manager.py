@@ -24,6 +24,9 @@ class WorldManager:
         for session in self.worlds.values():
             if session.normal_channel_id == normal_channel_id:
                 return "already_exists"
+        ping_channel_id = config["DiscordConfig"].get("ping_channel_id")
+        if not ping_channel_id :
+            ping_channel_id = normal_channel_id
 
         bot_client = BotClient(
             config = config,
@@ -38,7 +41,7 @@ class WorldManager:
             bot = self.bot,
             bot_client = bot_client,
             normal_channel_id = normal_channel_id,
-            ping_channel_id = config["DiscordConfig"]["ping_channel_id"],
+            ping_channel_id = ping_channel_id,
             message_queue = message_queue,
             ping_queue = ping_queue,
             dm_queue = dm_queue,
