@@ -11,6 +11,18 @@ async def is_admin(ctx, session):
         return True # If no admin ids are specified, allow everyone to use admin commands
     return str(ctx.author.id) in session.admin_ids
 
+def is_running_in_docker() -> bool:
+    if os.path.exists('/local_path/.dockerenv') or os.path.exists('/.dockerenv'):
+        return True
+    try:
+        with open('/proc/self/cgroup', 'r') as f:
+            if 'docker' in f.read():
+                return True
+    except Exception:
+        pass
+        
+    return False
+
 def setup_admin_commands(bot) :
     
     @bot.command(name='computeChecks')
@@ -112,3 +124,26 @@ Please delete the existing world before creating a new one or use a different no
             await ctx.send("You are an admin.")
         else :
             await ctx.send("You are not an admin.")
+    
+    @bot.command(name='restart')
+    async def restart_bot(ctx):
+        session = bot.world_manager.get_world_from_channel(ctx.channel.id)
+        if session is None :
+            bot.custom_logger.warning(f"Received message from channel {ctx.channel.id} but no world is associated to this channel.")
+            await ctx.send("No world is associated with this channel.")
+            return
+        if not ctx.author.id in session.admin_ids:
+            await ctx.send("You don't have permission to use this command. Only the world admins can restart the bot.")
+            return
+        
+        in_docker = is_running_in_docker()
+
+        if in_docker:
+            await ctx.send("Docker detected. Closing connections and shutting down (Docker will restart the container).")
+            bot.custom_logger.warning(f"Shutdown order received from Discord (Docker environment). Exiting cleanly.")
+            await bot.close()
+            os._exit(0) 
+        else:
+            await ctx.send("Standard Python environment detected. Rebooting application process...")
+            bot.custom_logger.warning(f"Restart order received from Discord (Python environment). Executing os.execv.")
+            os.execv(sys.executable, ['python'] + sys.argv)
