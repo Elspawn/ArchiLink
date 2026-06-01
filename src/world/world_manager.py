@@ -14,48 +14,51 @@ class WorldManager:
         self.loaded = False
                 
     async def create_world(self, world_data_dir, config):
-        world_id = world_data_dir.split("/")[-1]
-        message_queue = asyncio.Queue()
-        ping_queue = asyncio.Queue()
-        dm_queue = asyncio.Queue()
-        world_logger = self.logger.getChild(world_id)
-        admin_ids = config["DiscordConfig"].get("admin_ids", [])
-        # Make sure all admin ids are integers
-        admin_ids = [int(admin_id) for admin_id in admin_ids]
-        normal_channel_id = int(config["DiscordConfig"]["normal_channel_id"])
-        for session in self.worlds.values():
-            if session.normal_channel_id == normal_channel_id:
-                return "already_exists"
-        ping_channel_id = int(config["DiscordConfig"].get("ping_channel_id", normal_channel_id))
+        try :
+            world_id = world_data_dir.split("/")[-1]
+            message_queue = asyncio.Queue()
+            ping_queue = asyncio.Queue()
+            dm_queue = asyncio.Queue()
+            world_logger = self.logger.getChild(world_id)
+            admin_ids = config["DiscordConfig"].get("admin_ids", [])
+            # Make sure all admin ids are integers
+            admin_ids = [int(admin_id) for admin_id in admin_ids]
+            normal_channel_id = int(config["DiscordConfig"]["normal_channel_id"])
+            for session in self.worlds.values():
+                if session.normal_channel_id == normal_channel_id:
+                    return "already_exists"
+            ping_channel_id = int(config["DiscordConfig"].get("ping_channel_id", normal_channel_id))
 
-        bot_client = BotClient(
-            config = config,
-            message_queue = message_queue,
-            ping_queue = ping_queue,
-            dm_queue = dm_queue,
-            logger = world_logger,
-            datadir = world_data_dir
-        )
-        
-        session = WorldSession(
-            bot = self.bot,
-            bot_client = bot_client,
-            normal_channel_id = normal_channel_id,
-            ping_channel_id = ping_channel_id,
-            message_queue = message_queue,
-            ping_queue = ping_queue,
-            dm_queue = dm_queue,
-            logger = world_logger,
-            admin_ids = admin_ids,
-            world_id = world_id
-        )
-        
-        await session.start()
-        session.tasks.append(asyncio.create_task(bot_client.run()))
-        self.worlds[world_id] = session
-        guild = self.bot.get_channel(normal_channel_id).guild
-        channel = self.bot.get_channel(normal_channel_id)
-        return f"https://discord.com/channels/{guild.id}/{channel.id}"
+            bot_client = BotClient(
+                config = config,
+                message_queue = message_queue,
+                ping_queue = ping_queue,
+                dm_queue = dm_queue,
+                logger = world_logger,
+                datadir = world_data_dir
+            )
+            
+            session = WorldSession(
+                bot = self.bot,
+                bot_client = bot_client,
+                normal_channel_id = normal_channel_id,
+                ping_channel_id = ping_channel_id,
+                message_queue = message_queue,
+                ping_queue = ping_queue,
+                dm_queue = dm_queue,
+                logger = world_logger,
+                admin_ids = admin_ids,
+                world_id = world_id
+            )
+            
+            await session.start()
+            session.tasks.append(asyncio.create_task(bot_client.run()))
+            self.worlds[world_id] = session
+            guild = self.bot.get_channel(normal_channel_id).guild
+            channel = self.bot.get_channel(normal_channel_id)
+            return f"https://discord.com/channels/{guild.id}/{channel.id}"
+        except Exception as e:
+            self.logger.error(f"Error while creating world {world_data_dir}: {e}")
     
     async def stop_world(self, world_id: str):
         session = self.worlds.get(world_id)
