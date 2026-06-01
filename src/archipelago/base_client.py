@@ -87,7 +87,7 @@ class ArchipelagoClient(ABC) :
                 raise
             except Exception as e:
                 self.logger.error(f"Connection error: {e}")
-                await asyncio.sleep(30)
+                await asyncio.sleep(60)  # Wait before trying to reconnect
                 
     async def stop(self) :
         self.running = False
