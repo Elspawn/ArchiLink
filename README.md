@@ -52,7 +52,7 @@ Here is the list of commands to manage worlds :
 |--------|------------|
 | `!newWorld` | Initializes the bot to follow an Archipelago multiworld. Two way to configure the world are available : manual configuration or
 uploading a config.json file. This command can be used anywhere. |
-| `!deleteWorld` | Delete the world associated to the current channel (the bot will no longer track progress) |
+| `!deleteWorld` | Delete the world associated to the current channel (the bot will no longer track progress). This command can only be used by admins to prevent griefing. |
 
 Once a world is instanciated, you can interact with it with these commands :
 
@@ -68,7 +68,6 @@ Once a world is instanciated, you can interact with it with these commands :
 | `!todo` | Display your current todo list. |
 | `!clearTodo` | Clear your entire todo list. |
 | `!removeTodo <item_name>` | Remove a specific item from your todo list. |
-| `!progressGraph` | Generate a progression graph for all players (completion %, locations checked, etc.). |
 | `!wishlist` | Display items other players have marked for you. |
 | `!wastedOnArchipelago` | Display your total playtime in the multiworld session. |
 | `!deaths` | Display your total death count. |
@@ -80,4 +79,11 @@ Once a world is instanciated, you can interact with it with these commands :
 | `!enablenewitems` | Enable automatic DM notifications for new items when connecting to the game. |
 | `!disablenewitems` | Disable automatic DM notifications for new items (use `!new` manually instead). |
 | `!help [command]` | Show all commands or detailed info for a specific command. |
+
+Admin commands (available for everyone if no admin specified) :
+
+| `!isAdmin` | Tell wether you're an admin or not. |
+| `!computeChecks` | Compute total number of checks for every players (use this before printing the progress graph the first time). Beware, the bot will connect to the multiworld for every player to retrieve checks, this might cause some lags. |
+| `!deleteWorld` | Delete the world associated to the current channel (the bot will no longer track progress). |
+| `!listWorlds` | Display total number of worlds tracked in this server and associated channels. |
 

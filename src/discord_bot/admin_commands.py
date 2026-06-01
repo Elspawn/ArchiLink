@@ -13,13 +13,6 @@ async def is_admin(ctx, session):
 
 def setup_admin_commands(bot) :
     
-    @bot.command(name='admin', help='Admin command')
-    async def admin_command(ctx):
-        if not await is_admin(ctx, bot):
-            await ctx.send("You don't have permission to use this command.")
-            return
-        await ctx.send('This is an admin command.')
-    
     @bot.command(name='computeChecks')
     async def compute_checks(ctx):
         session = bot.world_manager.get_world_from_channel(ctx.channel.id)
