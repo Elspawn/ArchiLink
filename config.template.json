@@ -17,6 +17,7 @@
         "auto_ping_new_items" : true,
         "player_colors_limited" : false,
         "item_messages_in_thread" : false,
-        "deathlink_messages_in_thread" : false
+        "deathlink_messages_in_thread" : false,
+        "send_join_leave_messages" : true
     }
 }
