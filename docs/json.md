@@ -196,7 +196,7 @@ When enabled, the bot may send customized DeathLink messages instead of default 
 "auto_ping_new_items": true
 ```
 
-This field allow the bot to send message new items to a player when he join the game. If set to false, players will have to manually activate it. It can be enabled/disabled per player with commands.
+This field allow the bot to send new items to a player when he join the game (like a !new command). If set to false, players will have to manually activate it. It can be enabled/disabled per player with commands.
 
 ### Values
 
