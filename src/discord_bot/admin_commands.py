@@ -58,7 +58,7 @@ def setup_admin_commands(bot) :
             },
             "AdvancedConfig": {
                 "custom_deathlink_flavor" : False,
-                "auto_ping_new_items" : True,
+                "new_items_on_join_game" : True,
                 "player_colors_limited" : False,
                 "item_messages_in_thread" : False,
                 "deathlink_messages_in_thread" : False
@@ -205,7 +205,7 @@ Please delete the existing world before creating a new one or use a different no
         - ping_channel_id
         - admin_ids (comma separated list of discord user or role ids)
         - custom_deathlink_flavor
-        - auto_ping_new_items
+        - new_items_on_join_game
         - player_colors_limited
         - item_messages_in_thread
         - deathlink_messages_in_thread  

@@ -190,10 +190,10 @@ When enabled, the bot may send customized DeathLink messages instead of default 
 
 ---
 
-## `auto_ping_new_items`
+## `new_items_on_join_game`
 
 ```json
-"auto_ping_new_items": true
+"new_items_on_join_game": true
 ```
 
 This field allow the bot to send new items to a player when he join the game (like a !new command). If set to false, players will have to manually activate it. It can be enabled/disabled per player with commands.
@@ -250,7 +250,7 @@ Enabling this option will put all deathlink messages in a specific thread of the
     },
     "AdvancedConfig": {
         "custom_deathlink_flavor" : false,
-        "auto_ping_new_items" : true,
+        "new_items_on_join_game" : true,
         "player_colors_limited" : false,
         "item_messages_in_thread" : false,
         "deathlink_messages_in_thread" : false

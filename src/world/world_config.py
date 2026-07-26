@@ -319,7 +319,7 @@ class AdvancedModal(discord.ui.Modal, title="Advanced Config"):
             default="false"
         )
 
-        self.auto_ping_new_items = discord.ui.TextInput(
+        self.new_items_on_join_game = discord.ui.TextInput(
             label="Auto Ping New Items (true/false)",
             placeholder="true/false",
             required=True,
@@ -348,7 +348,7 @@ class AdvancedModal(discord.ui.Modal, title="Advanced Config"):
         )
                 
         self.add_item(self.custom_deathlink_flavor)
-        self.add_item(self.auto_ping_new_items)
+        self.add_item(self.new_items_on_join_game)
         self.add_item(self.player_colors_limited)
         self.add_item(self.item_messages_in_thread)
         self.add_item(self.deathlink_messages_in_thread)
@@ -357,7 +357,7 @@ class AdvancedModal(discord.ui.Modal, title="Advanced Config"):
 
         self.state.data["AdvancedConfig"] = {
             "custom_deathlink_flavor": self.custom_deathlink_flavor.value.lower() == "true",
-            "auto_ping_new_items": self.auto_ping_new_items.value.lower() != "false",
+            "new_items_on_join_game": self.new_items_on_join_game.value.lower() != "false",
             "player_colors_limited": self.player_colors_limited.value.lower() == "true",
             "item_messages_in_thread": self.item_messages_in_thread.value.lower() == "false",
             "deathlink_messages_in_thread": self.deathlink_messages_in_thread.value.lower() == "false",
