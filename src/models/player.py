@@ -1,19 +1,19 @@
 from models.item import Item
 
 PLAYER_COLORS = [
-    "\u001b[30m",
-    "\u001b[31m",
-    "\u001b[32m",
-    "\u001b[33m",
-    "\u001b[34m",
-    "\u001b[35m",
-    "\u001b[36m",
+    "\u001b[30m", # Black
+    "\u001b[31m", # Red
+    "\u001b[32m", # Green
+    "\u001b[33m", # Yellow
+    "\u001b[34m", # Blue
+    "\u001b[35m", # Purple
+    "\u001b[36m", # Cyan
 ]
 
 RESTRICTED_COLORS = [
-    "\u001b[32m",
-    "\u001b[35m",
-    "\u001b[36m",
+    "\u001b[32m", # Green
+    "\u001b[35m", # Purple
+    "\u001b[36m", # Cyan    
 ]
 
 class Player:
