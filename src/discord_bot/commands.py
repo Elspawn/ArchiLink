@@ -630,6 +630,34 @@ Ask an admin to run !computeChecks command first.")
         message_to_send = f"[{player.player_name}] {message}"
         bot.custom_logger.info(f"Sending message to MultiWorld Client: {message_to_send}")
         await session.bot_client.say_messages(message_to_send)
+        
+    @bot.command(name='setcolor', help='Set your preferred color.')
+    async def setcolor(ctx, color: str):
+        session = await check_world_channel(bot, ctx.channel.id)
+        if session is None:
+            await ctx.send("This channel is not associated with any world. Please use the commands in the correct channel or create a new world with !newWorld.")
+            return
+        discord_profil = session.bot_client.discord_db.get_discord_profile(ctx.author.id)
+        if discord_profil is None or discord_profil.current_slot is None:
+            await ctx.send("You are not registered to any player. Please register first using `!register <player_name>` command.")
+            return
+        player = discord_profil.current_slot
+        colors = {
+            "black": "\u001b[30m",
+            "red": "\u001b[31m",
+            "green": "\u001b[32m",
+            "yellow": "\u001b[33m",
+            "blue": "\u001b[34m",
+            "magenta": "\u001b[35m",
+            "cyan": "\u001b[36m",
+            "white": "\u001b[37m",
+        }
+        if color.lower() not in colors:
+            await ctx.send(f"Invalid color : {color}. Please choose from: black, red, green, yellow, blue, magenta, cyan, white.")
+            return
+        player.color = colors[color.lower()]
+        player.name_colored = f"{player.color}{player.player_name}\u001b[0m"
+        await ctx.send(f"Your preferred color has been set to {color}.")
 
     @bot.command(name='help')
     async def help(ctx, command: str = None):
