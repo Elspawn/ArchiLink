@@ -175,7 +175,15 @@ def setup_commands(bot):
         player = discord_profil.current_slot
         hints = await session.bot_client.retrieve_available_hints(player.player_slot)
         hints_to_get = hints["to_get"]
-        
+        wishlist = []
+        for other_player in session.bot_client.player_db.get_all_players() :
+            async with session.bot_client.lock:
+                for item in other_player.todolist:
+                    if item.player_recieving.player_name == player.player_name :
+                        wishlist.append(item)
+        # Remove items from hints_to_get that are already in wishlist
+        # Remove if item_name and location_name are the same
+        hints_to_get = [item for item in hints_to_get if not any(item.item_name == w.item_name and item.location_name == w.location_name for w in wishlist)]
         item = resolve_item(item_name, hints_to_get)
         if item is not None :
             player_sending = item.player_sending
