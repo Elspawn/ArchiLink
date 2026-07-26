@@ -36,7 +36,7 @@ def check_config(data) :
             
         advanced_config_fields = [
             "custom_deathlink_flavor",
-            "auto_ping_new_items",
+            "new_items_on_join_game",
             "player_colors_limited",
             "item_messages_in_thread",
             "deathlink_messages_in_thread"
@@ -65,8 +65,8 @@ def complete_config(data) :
     # Set default values for optional fields if they are missing
     if "custom_deathlink_flavor" not in data["AdvancedConfig"]:
         data["AdvancedConfig"]["custom_deathlink_flavor"] = False
-    if "auto_ping_new_items" not in data["AdvancedConfig"]:
-        data["AdvancedConfig"]["auto_ping_new_items"] = True
+    if "new_items_on_join_game" not in data["AdvancedConfig"]:
+        data["AdvancedConfig"]["new_items_on_join_game"] = True
     if "player_colors_limited" not in data["AdvancedConfig"]:
         data["AdvancedConfig"]["player_colors_limited"] = False
     if "item_messages_in_thread" not in data["AdvancedConfig"]:

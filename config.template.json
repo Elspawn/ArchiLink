@@ -14,7 +14,7 @@
     },
     "AdvancedConfig": {
         "custom_deathlink_flavor" : false,
-        "auto_ping_new_items" : true,
+        "new_items_on_join_game" : true,
         "player_colors_limited" : false,
         "item_messages_in_thread" : false,
         "deathlink_messages_in_thread" : false,
