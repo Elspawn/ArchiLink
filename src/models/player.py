@@ -11,7 +11,6 @@ PLAYER_COLORS = [
 ]
 
 RESTRICTED_COLORS = [
-    "\u001b[30m",
     "\u001b[32m",
     "\u001b[35m",
     "\u001b[36m",
