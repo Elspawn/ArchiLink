@@ -35,6 +35,7 @@ class BotClient(ArchipelagoClient) :
         self.reversed_datapackage_path = os.path.join(datadir, "reversed_datapackage.json")
         self.custom_deathlink_flavor = config["AdvancedConfig"].get("custom_deathlink_flavor", False)
         self.hint_results = {}
+        self.send_join_part_messages = config["AdvancedConfig"].get("send_join_leave_messages", True)
     
     async def process_messages(self):
         while self.running:
@@ -187,6 +188,8 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
             player.is_playing = True
             player.time_joined = time.time()
             self.logger.info(f"Player {player.player_name} in slot {player_slot} started playing, timer started.")
+            if self.send_join_part_messages :
+                await self.messages_to_send.put((f"```ansi\nPlayer {player.name_colored} started playing {player.player_game}.```", "normal"))
             # If player has new items and get_new_items_auto is enabled, send a message to ping the player about their new items
             if player.new_items and player.get_new_items_auto :
                 await self.dm_queue.put((player, "new_items"))
@@ -200,6 +203,8 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
             if player is None :
                 self.logger.warning(f"Player in slot {player_slot} not found in player_db, cannot process Part message.")
                 return
+            if self.send_join_part_messages :
+                await self.messages_to_send.put((f"```ansi\nPlayer {player.name_colored} stopped playing {player.player_game}.```", "normal"))
             if player.is_playing :
                 player.is_playing = False
                 time_played = time.time() - player.time_joined
