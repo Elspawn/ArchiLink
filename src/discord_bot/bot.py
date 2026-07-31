@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-from discord_bot.commands import setup_commands
-from discord_bot.admin_commands import setup_admin_commands
+from discord_bot import commands as cmd
 from discord_bot.events import setup_events
 import os
 
@@ -16,7 +15,6 @@ def create_bot(logger) :
     bot.custom_logger = logger
     bot.app_token = os.getenv("DISCORD_APP_TOKEN")
     bot.remove_command('help')
-    setup_commands(bot)
+    cmd.setup(bot)
     setup_events(bot)
-    setup_admin_commands(bot)
     return bot
