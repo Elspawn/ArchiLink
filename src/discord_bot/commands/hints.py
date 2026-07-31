@@ -2,6 +2,7 @@ from utils.ansi import AnsiTable, AnsiText
 from utils.commands import get_current_player
 from utils.colors import get_ansi_color_from_flag
 from archipelago.hint_client import HintClient
+from models.button import Button
 import asyncio
 import re
 
