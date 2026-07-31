@@ -63,7 +63,7 @@ class Player:
             discord_id=data["discord_id"]
         )
         player.color = PLAYER_COLORS[int(player.player_slot) % len(PLAYER_COLORS)]
-        player.name_colored = f"{player.color}{player.player_name}\u001b[0m"
+        player.name_colored = f"\u001b[0;{player.color}m{player.player_name}\u001b[0m"
         player.new_items = [Item.load(item_data) for item_data in data.get("new_items", [])]
         player.todolist = [Item.load(item_data) for item_data in data.get("todolist", [])]
         player.allow_ping = data.get("allow_ping", True)
