@@ -231,6 +231,28 @@ Enabling this option will put all item messages in a specific thread of the norm
 
 Enabling this option will put all deathlink messages in a specific thread of the normal channel (to keep it clean for commands).
 
+## `send_join_leave_messages`
+```json
+"send_join_leave_messages": true
+```
+
+Enabling this option will make the bot send messages when a player start or stop playing his game.
+
+## `item_display_level`
+```json
+"item_display_level": 1
+```
+
+This option filter which items are relayed by the bot with the folowwing configuration
+
+| Level | Items send |
+|--------|------------|
+|0|None|
+|1|All|
+|2|Progressive + Useful|
+|3|Progressive only|
+
+
 # Full Example
 
 ```json
@@ -253,7 +275,9 @@ Enabling this option will put all deathlink messages in a specific thread of the
         "new_items_on_join_game" : true,
         "player_colors_limited" : false,
         "item_messages_in_thread" : false,
-        "deathlink_messages_in_thread" : false
+        "deathlink_messages_in_thread" : false,
+        "send_join_leave_messages" : true,
+        "item_display_level" : 1
     }
 }
 ```

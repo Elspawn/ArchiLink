@@ -18,6 +18,7 @@
         "player_colors_limited" : false,
         "item_messages_in_thread" : false,
         "deathlink_messages_in_thread" : false,
-        "send_join_leave_messages" : true
+        "send_join_leave_messages" : true,
+        "item_display_level" : 1
     }
 }
