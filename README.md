@@ -32,7 +32,10 @@ Once the bot has been added to your server, you can create and configure an Arch
 !newWorld
 ```
 
-The setup wizard will guide you through the configuration process. If you have any question, contact me.
+You can now edit a copy of the [config.json](https://github.com/TanguyBod/ArchiLink/blob/main/config.template.json) file and drop it in the channel or be guided by the setup wizard.
+All fields of the json are described [here](https://github.com/TanguyBod/ArchiLink/blob/main/docs/json.md).
+Beware, setup wizard hasn't been updated recently, some errors might happen.
+If you have any question, contact me.
 
 ## Docker
 
