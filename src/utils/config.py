@@ -75,6 +75,8 @@ def complete_config(data) :
         data["AdvancedConfig"]["deathlink_messages_in_thread"] = False
     if "send_join_leave_messages" not in data["AdvancedConfig"]:
         data["AdvancedConfig"]["send_join_leave_messages"] = True
+    if "item_display_level" not in data["AdvancedConfig"]:
+        data["AdvancedConfig"]["item_display_level"] = 1
     if "self_hosted" not in data["ArchipelagoConfig"]:
         data["ArchipelagoConfig"]["self_hosted"] = False
     if "admin_ids" not in data["DiscordConfig"]:

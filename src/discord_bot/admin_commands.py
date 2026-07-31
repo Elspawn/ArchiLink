@@ -61,7 +61,9 @@ def setup_admin_commands(bot) :
                 "new_items_on_join_game" : True,
                 "player_colors_limited" : False,
                 "item_messages_in_thread" : False,
-                "deathlink_messages_in_thread" : False
+                "deathlink_messages_in_thread" : False,
+                "send_join_leave_messages" : True,
+                "item_display_level" : 1
             }
         }
         datadir = os.getenv("DATA_DIRECTORY", "data")
