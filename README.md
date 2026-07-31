@@ -157,6 +157,3 @@ These commands are available to everyone if no administrator system is configure
 | Command | Description |
 |--------|------------|
 | `!help [command]` | Display the list of available commands or detailed information about a specific command. |
-
-
-

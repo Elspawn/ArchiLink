@@ -29,7 +29,7 @@ class Player:
             self.color = RESTRICTED_COLORS[int(player_slot) % len(RESTRICTED_COLORS)]
         else:
             self.color = PLAYER_COLORS[int(player_slot) % len(PLAYER_COLORS)]
-        self.name_colored = f"{self.color}{self.player_name}\u001b[0m"
+        self.name_colored = f"\u001b[0;{self.color}m{self.player_name}\u001b[0m"
         self.is_playing = False
         self.time_joined = 0.0
         self.time_played = 0.0 # seconds
