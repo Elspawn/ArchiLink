@@ -5,7 +5,7 @@ import json
 import discord
 from archipelago.bot_client import BotClient
 from discord_bot import bot
-from discord_bot.commands import send_new_items
+from discord_bot.commands.notifications import send_new_items
 from utils.config import check_config
 
 class WorldManager:

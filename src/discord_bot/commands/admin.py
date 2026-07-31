@@ -14,7 +14,7 @@ async def is_admin(ctx, session):
     roles = getattr(ctx.author, "roles", [])
     return any(role.id in admin_ids for role in roles)
 
-def setup_admin_commands(bot) :
+def setup(bot) :
     
     @bot.command(name='computeChecks')
     async def compute_checks(ctx):
@@ -210,7 +210,9 @@ Please delete the existing world before creating a new one or use a different no
         - new_items_on_join_game
         - player_colors_limited
         - item_messages_in_thread
-        - deathlink_messages_in_thread  
+        - deathlink_messages_in_thread 
+        - send_join_leave_messages
+        - item_display_level (0, 1 or 2)
         """
         session = bot.world_manager.get_world_from_channel(ctx.channel.id)
         if session is None:
