@@ -83,10 +83,8 @@ def complete_config(data) :
         data["ArchipelagoConfig"]["self_hosted"] = False
     if "admin_ids" not in data["DiscordConfig"]:
         data["DiscordConfig"]["admin_ids"] = []
-    if "ping_channel_id" not in data["DiscordConfig"]:
+    if "ping_channel_id" not in data["DiscordConfig"] or data["DiscordConfig"]["ping_channel_id"] == "":
         data["DiscordConfig"]["ping_channel_id"] = None
     if "bot_slot" not in data["ArchipelagoConfig"]:
         data["ArchipelagoConfig"]["bot_slot"] = "ArchiLink"
-    if "room_url" not in data["ArchipelagoConfig"]:
-        data["ArchipelagoConfig"]["room_url"] = ""
     return data
