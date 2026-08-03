@@ -229,6 +229,7 @@ Please delete the existing world before creating a new one or use a different no
                 if isinstance(values, dict):
                     for key in values:
                         allowed_keys[key] = section
+            print(f"Current configuration: {session.bot_client.config}")
             if key_to_change not in allowed_keys:
                 await ctx.send(
                     f"Invalid configuration key. Allowed keys are: {', '.join(allowed_keys.keys())}"

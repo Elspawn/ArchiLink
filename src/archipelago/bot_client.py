@@ -42,7 +42,7 @@ class BotClient(ArchipelagoClient) :
         while self.running:
             try :
                 message = await self.message_queue.get()
-                self.logger.info(f"Processing message: {message}")
+                self.logger.debug(f"Processing message: {message}")
                 if message["cmd"] == "RoomInfo" :
                     # Check DataPackage and send connect
                     await self.check_data_package()

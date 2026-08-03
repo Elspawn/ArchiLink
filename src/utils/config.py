@@ -39,7 +39,9 @@ def check_config(data) :
             "new_items_on_join_game",
             "player_colors_limited",
             "item_messages_in_thread",
-            "deathlink_messages_in_thread"
+            "deathlink_messages_in_thread",
+            "send_join_leave_messages",
+            "item_display_level"
         ]    
         for field in advanced_config_fields:
             if field not in data["AdvancedConfig"]:
