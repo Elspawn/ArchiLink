@@ -67,7 +67,7 @@ class BotClient(ArchipelagoClient) :
                                 continue
                             player = self.player_db.get_player_by_slot(player_slot)
                             if player is None :
-                                self.logger.info(f"Player in slot {player_slot} not found in player_db, creating new player {player_name} playing {player_game}.")
+                                self.logger.debug(f"Player in slot {player_slot} not found in player_db, creating new player {player_name} playing {player_game}.")
                                 self.player_db.create_player(player_slot, player_game, player_name, color_restricted = self.config["AdvancedConfig"].get("player_colors_limited", False))
                             else :
                                 if player.player_name != player_name or player.player_game != player_game :
@@ -167,7 +167,7 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
             # Add item to recieving player's new items list if the item is sent from another player and the recieving player is not playing
             # We assume that if the player is playing, they are aware of the items they received
             if item_sent.player_sending != item_sent.player_recieving and not item_sent.player_recieving.is_playing :
-                self.logger.info(f"Item sent from {item_sent.player_sending.player_name} added to player {item_sent.player_recieving.player_name} new items list.")
+                self.logger.debug(f"Item sent from {item_sent.player_sending.player_name} added to player {item_sent.player_recieving.player_name} new items list.")
                 async with self.lock:
                     item_sent.player_recieving.new_items.append(item_sent)
             item_sent.player_sending.checked_locations += 1 # Keep track of number of checks locations
@@ -284,7 +284,7 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
                 msg_flavor = get_fulfilled_wish_flavor(sending_str, recieving_str, item.item_name, item.location_name)
                 await self.ping_queue.put(msg_flavor)
                 return True
-        self.logger.info(f"Item {item.item_name} not found in {item.player_sending.player_name} todolist, not removed.")
+        self.logger.debug(f"Item {item.item_name} not found in {item.player_sending.player_name} todolist, not removed.")
         return False
 
     async def check_data_package(self) -> None :
