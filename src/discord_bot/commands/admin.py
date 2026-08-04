@@ -63,7 +63,8 @@ def setup(bot) :
                 "item_messages_in_thread" : False,
                 "deathlink_messages_in_thread" : False,
                 "send_join_leave_messages" : True,
-                "item_display_level" : 1
+                "item_display_level" : 1,
+                "display_traps" : True
             }
         }
         datadir = os.getenv("DATA_DIRECTORY", "data")
