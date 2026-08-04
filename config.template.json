@@ -19,6 +19,7 @@
         "item_messages_in_thread" : false,
         "deathlink_messages_in_thread" : false,
         "send_join_leave_messages" : true,
-        "item_display_level" : 1
+        "item_display_level" : 1,
+        "display_traps" : true
     }
 }

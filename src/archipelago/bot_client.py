@@ -37,6 +37,7 @@ class BotClient(ArchipelagoClient) :
         self.hint_results = {}
         self.send_join_part_messages = config["AdvancedConfig"].get("send_join_leave_messages", True)
         self.items_handling_level = config["AdvancedConfig"].get("item_display_level", 1) # 0 = no item, 1 = all, 2 = Progression and useful, 3 = Progression only
+        self.traps = config["AdvancedConfig"].get("display_traps", True) # Whether to include traps in item display
     
     async def process_messages(self):
         while self.running:
@@ -172,7 +173,7 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
                     item_sent.player_recieving.new_items.append(item_sent)
             item_sent.player_sending.checked_locations += 1 # Keep track of number of checks locations
             await self.remove_item_from_todolist(item_sent)
-            if item_filter(item_sent.flag, self.items_handling_level) :
+            if item_filter(item_sent.flag, self.items_handling_level, self.traps) :
                 await self.messages_to_send.put((msg_str, "item_send"))
             
         elif message["type"] == "Join" :
@@ -353,11 +354,15 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
         }
         await self.send_message(payload)
         
-def item_filter(flag, items_handling_level: int) -> bool :
+def item_filter(flag, items_handling_level: int, display_traps: bool) -> bool :
     """
     Filter items based on the flag and the items_handling_level.
     0 = no item, 1 = all, 2 = Progression and useful, 3 = Progression only
     """
+    if display_traps and flag & 0b100 : # Trap
+        return True
+    if not display_traps and flag & 0b100 : # Trap
+        return False
     if items_handling_level == 0 :
         return False
     elif items_handling_level == 1 :

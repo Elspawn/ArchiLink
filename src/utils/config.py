@@ -41,7 +41,8 @@ def check_config(data) :
             "item_messages_in_thread",
             "deathlink_messages_in_thread",
             "send_join_leave_messages",
-            "item_display_level"
+            "item_display_level",
+            "display_traps"
         ]    
         for field in advanced_config_fields:
             if field not in data["AdvancedConfig"]:
@@ -79,6 +80,8 @@ def complete_config(data) :
         data["AdvancedConfig"]["send_join_leave_messages"] = True
     if "item_display_level" not in data["AdvancedConfig"]:
         data["AdvancedConfig"]["item_display_level"] = 1
+    if "display_traps" not in data["AdvancedConfig"]:
+        data["AdvancedConfig"]["display_traps"] = True
     if "self_hosted" not in data["ArchipelagoConfig"]:
         data["ArchipelagoConfig"]["self_hosted"] = False
     if "admin_ids" not in data["DiscordConfig"]:

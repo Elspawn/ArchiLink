@@ -51,7 +51,8 @@ class Player:
             "get_new_items_auto": self.get_new_items_auto,
             "deaths": self.deaths,
             "total_locations": self.total_locations,
-            "checked_locations": self.checked_locations
+            "checked_locations": self.checked_locations,
+            "color": self.color
         }
     
     @staticmethod
@@ -62,7 +63,7 @@ class Player:
             player_name=data["player_name"],
             discord_id=data["discord_id"]
         )
-        player.color = PLAYER_COLORS[int(player.player_slot) % len(PLAYER_COLORS)]
+        player.color = data.get("color", PLAYER_COLORS[int(player.player_slot) % len(PLAYER_COLORS)])
         player.name_colored = f"\u001b[0;{player.color}m{player.player_name}\u001b[0m"
         player.new_items = [Item.load(item_data) for item_data in data.get("new_items", [])]
         player.todolist = [Item.load(item_data) for item_data in data.get("todolist", [])]
