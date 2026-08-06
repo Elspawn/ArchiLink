@@ -26,7 +26,7 @@ async def send_new_items(bot, session, player) :
                 AnsiText(item.player_sending.player_name, color=item.player_sending.color),
                 AnsiText(item.location_name)
             )
-        table.send(user.dm_channel)
+        await table.send(user.dm_channel)
 
 def setup(bot):
     
