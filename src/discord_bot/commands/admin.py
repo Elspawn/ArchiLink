@@ -49,7 +49,8 @@ def setup(bot) :
                 "client_port" : f"{port}",
                 "password" : password,
                 "bot_slot" : "ArchiLink",
-                "self_hosted" : "archipelago.gg" not in ip_address
+                "self_hosted" : "archipelago.gg" not in ip_address,
+                "room_url" : ""
             },
             "DiscordConfig": {
                 "normal_channel_id" : f"{ctx.channel.id}",
