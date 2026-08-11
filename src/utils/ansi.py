@@ -88,4 +88,17 @@ class AnsiTable:
         msg += "```"
         if msg != "```ansi\n```":
             await destination.send(msg)
-            
+        
+    async def format_messages(self) -> list[str]:
+        messages = []
+        msg = "```ansi\n"
+        for line in self._render_lines():
+            if len(msg) + len(strip_ansi(line)) > self.DISCORD_LIMIT:
+                msg += "```"
+                messages.append(msg)
+                msg = "```ansi\n"
+            msg += line + "\n"
+        msg += "```"
+        if msg != "```ansi\n```":
+            messages.append(msg)
+        return messages

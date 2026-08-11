@@ -354,6 +354,15 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
         }
         await self.send_message(payload)
         
+    async def check_bot_slot_exists(self) -> bool :
+        """
+        Check if the bot slot exists in the world.
+        """
+        for player in self.player_db.get_all_players() :
+            if player.player_name == self.slot_name :
+                return True
+        return False
+        
 def item_filter(flag, items_handling_level: int, display_traps: bool) -> bool :
     """
     Filter items based on the flag and the items_handling_level.

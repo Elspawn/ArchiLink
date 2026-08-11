@@ -1,5 +1,8 @@
 from utils.ansi import AnsiTable, AnsiText
 from utils.commands import get_current_player
+from discord.ext import commands
+from discord import app_commands
+import discord
 
 async def send_new_items(bot, session, player) :
     user = await bot.fetch_user(player.discord_id)
@@ -26,70 +29,131 @@ async def send_new_items(bot, session, player) :
                 AnsiText(item.player_sending.player_name, color=item.player_sending.color),
                 AnsiText(item.location_name)
             )
-        await table.send(user.dm_channel)
-
-def setup(bot):
+        table.send(user.dm_channel)
+        
+class NotificationCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
     
-    @bot.command(name='new')
-    async def new(ctx, all: str = None) :
-        session, discord_profil = await get_current_player(bot, ctx)
+    async def _new(self, channel_id, author, all: str = None):
+        session, discord_profil = await get_current_player(self.bot, channel_id, author)
         if session is None or discord_profil is None :
-            return
+            return "No session or discord profile found. Please make sure you are in a valid game session and registered."
         if all == "all" :
             for player in discord_profil.slots :
-                await send_new_items(bot, session, player)
+                await send_new_items(self.bot, session, player)
+            return "New items sent to your DM for all your registered players. Please check your messages."
         else :
             current_player = discord_profil.current_slot
-            await send_new_items(bot, session, current_player)
-
-    @bot.command(name='enableping')
-    async def enableping(ctx) :
-        session, discord_profil = await get_current_player(bot, ctx)
+            await send_new_items(self.bot, session, current_player)
+            return "New items sent to your DM. Please check your messages."
+            
+    async def _enableping(self, channel_id, author):
+        session, discord_profil = await get_current_player(self.bot, channel_id, author)
         if session is None or discord_profil is None :
-            return
+            return "No session or discord profile found. Please make sure you are in a valid game session and registered."
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
-            await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
+            return "You are not registered to any player. Please register first using `!register <name>` command."
         else :
             for player in discord_profil.slots :
                 player.allow_ping = True
-            await ctx.send(f"This discord bot will now ping you when another player finds an item relevant to your todo list.")
-
-    @bot.command(name='disableping')
-    async def disableping(ctx) :
-        session, discord_profil = await get_current_player(bot, ctx)
+            return "This discord bot will now ping you when another player finds an item relevant to your todo list."
+            
+    async def _disableping(self, channel_id, author):
+        session, discord_profil = await get_current_player(self.bot, channel_id, author)
         if session is None or discord_profil is None :
-            return
+            return "No session or discord profile found. Please make sure you are in a valid game session and registered."
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
-            await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
+            return "You are not registered to any player. Please register first using `!register <name>` command."
         else :
             for player in discord_profil.slots :
                 player.allow_ping = False
-            await ctx.send(f"This discord bot won't bother you anymore with pings")
+            return "This discord bot won't bother you anymore with pings"
             
-    @bot.command(name='enablenewitems')
-    async def enablenewitems(ctx) :
-        session, discord_profil = await get_current_player(bot, ctx)
+    async def _enablenewitems(self, channel_id, author):
+        session, discord_profil = await get_current_player(self.bot, channel_id, author)
         if session is None or discord_profil is None :
-            return
+            return "No session or discord profile found. Please make sure you are in a valid game session and registered."
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
-            await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
+            return "You are not registered to any player. Please register first using `!register <name>` command."
         else :
             for player in discord_profil.slots :
                 player.get_new_items_auto = True
-            await ctx.send(f"You will now receive new items automatically in DM as soon as you start playing.")
+            return "You will now receive new items automatically in DM as soon as you start playing."
             
-    @bot.command(name='disablenewitems')
-    async def disablenewitems(ctx) :
-        session, discord_profil = await get_current_player(bot, ctx)
+    async def _disablenewitems(self, channel_id, author):
+        session, discord_profil = await get_current_player(self.bot, channel_id, author)
         if session is None or discord_profil is None :
-            return
+            return "No session or discord profile found. Please make sure you are in a valid game session and registered."
         registered_players = [p.player_name for p in discord_profil.slots] if discord_profil else []
         if registered_players == [] :
-            await ctx.send(f"You are not registered to any player. Please register first usign `!register <name>` command.")
+            return "You are not registered to any player. Please register first using `!register <name>` command."
         else :
             for player in discord_profil.slots :
                 player.get_new_items_auto = False
-            await ctx.send(f"You will now have to use `!new` command to check for new items received since the last time you checked.")
+            return "You will now have to use `!new` command to check for new items received since the last time you checked."
+
+    # ============================================================
+    # Prefix commands
+    # ============================================================
+    
+    @commands.command(name='new', description="Get new items received since the last time you checked.")
+    async def new(self, ctx, all: str = None):
+        response = await self._new(ctx.channel.id, ctx.author, all)
+        await ctx.send(response)
+
+    @commands.command(name='enableping', description="Enable ping when another player finds an item relevant to your todo list.")
+    async def enableping(self, ctx):
+        response = await self._enableping(ctx.channel.id, ctx.author)
+        await ctx.send(response)
+
+    @commands.command(name='disableping', description="Disable ping when another player finds an item relevant to your todo list.")
+    async def disableping(self, ctx):
+        response = await self._disableping(ctx.channel.id, ctx.author)
+        await ctx.send(response)
+
+    @commands.command(name='enablenewitems', description="Enable automatic sending of new items received in DM.")
+    async def enablenewitems(self, ctx):
+        response = await self._enablenewitems(ctx.channel.id, ctx.author)
+        await ctx.send(response)
+
+    @commands.command(name='disablenewitems', description="Disable automatic sending of new items received in DM.")
+    async def disablenewitems(self, ctx):
+        response = await self._disablenewitems(ctx.channel.id, ctx.author)
+        await ctx.send(response)
+
+    # ============================================================
+    # Slash commands
+    # ============================================================
+    
+    @app_commands.command(name='new', description="Get new items received since the last time you checked.")
+    @app_commands.describe(all="If you want to get new items for all your registered players.")
+    async def new_slash(self, interaction: discord.Interaction, all: str = None):
+        response = await self._new(interaction.channel.id, interaction.user, all)
+        await interaction.response.send_message(response)
+
+    @app_commands.command(name='enableping', description="Enable ping when another player finds an item relevant to your todo list.")
+    async def enableping_slash(self, interaction: discord.Interaction):
+        response = await self._enableping(interaction.channel.id, interaction.user)
+        await interaction.response.send_message(response)
+
+    @app_commands.command(name='disableping', description="Disable ping when another player finds an item relevant to your todo list.")
+    async def disableping_slash(self, interaction: discord.Interaction):
+        response = await self._disableping(interaction.channel.id, interaction.user)
+        await interaction.response.send_message(response)
+
+    @app_commands.command(name='enablenewitems', description="Enable automatic sending of new items received in DM.")
+    async def enablenewitems_slash(self, interaction: discord.Interaction):
+        response = await self._enablenewitems(interaction.channel.id, interaction.user)
+        await interaction.response.send_message(response)
+
+    @app_commands.command(name='disablenewitems', description="Disable automatic sending of new items received in DM.")
+    async def disablenewitems_slash(self, interaction: discord.Interaction):
+        response = await self._disablenewitems(interaction.channel.id, interaction.user)
+        await interaction.response.send_message(response)
+
+async def setup(bot):
+    await bot.add_cog(NotificationCog(bot))

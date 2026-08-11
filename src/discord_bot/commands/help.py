@@ -1,10 +1,15 @@
 from utils.commands import check_world_channel
 
-def setup(bot):
-    
-    @bot.command(name='help')
-    async def help(ctx, command: str = None):
-        session = await check_world_channel(bot, ctx.channel.id)
+from discord.ext import commands
+from discord import app_commands
+import discord
+
+class HelpCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        
+    async def _help(self, channel_id, command: str = None):
+        session = await check_world_channel(self.bot, channel_id)
         if session is None :
             msg = (
                 "**Available commands**\n\n"
@@ -17,8 +22,7 @@ def setup(bot):
                 "This command can be used in any channel and allows you to set up a new multiworld session with default settings, providing only the ip and port (optionnal password).\n"
                 "Example: `!fastConfig 127.0.0.1 38281 mypassword`"
             )
-            await ctx.send(msg)
-            return
+            return msg
         
         commands_help = {
             "register": {
@@ -184,7 +188,7 @@ def setup(bot):
                 )
             }
         }
-
+        
         if command is None:
             msg = (
                 "**Available commands**\n\n"
@@ -220,16 +224,11 @@ def setup(bot):
 
                 "Use `!help <command>` for detailed information about a specific command."
             )
-            await ctx.send(msg)
-            return
-
+            return msg
+        
         command = command.lower()
-
         if command not in commands_help:
-            await ctx.send(
-                f"Command `{command}` not found. Use `!help` to see all available commands."
-            )
-            return
+            return f"Command `{command}` not found. Use `!help` to see all available commands."
 
         data = commands_help[command]
 
@@ -239,4 +238,18 @@ def setup(bot):
             f"{data['details']}"
         )
 
+        return msg
+
+    @commands.command(name='help')
+    async def help(self, ctx, command: str = None):
+        msg = await self._help(ctx.channel.id, command)
         await ctx.send(msg)
+
+    @app_commands.command(name='help', description="Display help information for commands.")
+    @app_commands.describe(command="The command to get help for.")
+    async def help(self, interaction: discord.Interaction, command: str = None):
+        msg = await self._help(interaction.channel.id, command)
+        await interaction.response.send_message(msg)
+        
+async def setup(bot):
+    await bot.add_cog(HelpCog(bot))
