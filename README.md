@@ -24,7 +24,7 @@ If you don't want to host the bot yourself, or are unable to run it on your own 
 
 Simply invite it to your Discord server using the link below :
 
-**[Invite ArchiLink](https://discord.com/oauth2/authorize?client_id=1487801706732322997&permissions=8&scope=bot)**
+**[Invite ArchiLink](https://discord.com/oauth2/authorize?client_id=1487801706732322997&permissions=8&integration_type=0&scope=bot+applications.commands)**
 
 Once the bot has been added to your server, you can create and configure an Archipelago multiworld by using the following command :
 
