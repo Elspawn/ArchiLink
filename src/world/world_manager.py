@@ -68,12 +68,12 @@ class WorldManager:
             channel = await self.bot.fetch_channel(normal_channel_id)
             guild = channel.guild
             
-            # Check if the bot slot exists as a player in the world, if not delete the world and return an error
-            await asyncio.sleep(60)  # Wait for the bot client to initialize and fetch the world data
-            if not await bot_client.check_bot_slot_exists():
-                self.logger.error(f"Bot slot does not exist in world {world_id}, deleting world")
-                # await self.delete_world(world_id)
-                return "bot_slot_missing"
+            # # Check if the bot slot exists as a player in the world, if not delete the world and return an error
+            # await asyncio.sleep(60)  # Wait for the bot client to initialize and fetch the world data
+            # if not await bot_client.check_bot_slot_exists():
+            #     self.logger.error(f"Bot slot does not exist in world {world_id}, deleting world")
+            #     # await self.delete_world(world_id)
+            #     return "bot_slot_missing"
             
             return f"https://discord.com/channels/{guild.id}/{channel.id}"
         except discord.NotFound or discord.Forbidden:
