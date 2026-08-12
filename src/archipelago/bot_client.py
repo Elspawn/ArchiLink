@@ -111,7 +111,7 @@ If it's not related to archipelago.gg inactivity, it is the self-hosted instance
             try :
                 death_cause = message["data"]['cause'] #Cause is an optionnal field in this message
             except Exception as e :
-                death_case = "Died"
+                death_cause = "Died"
             if self.custom_deathlink_flavor :
                 msg = get_deathlink_flavor(dead_player_name, death_time)
             else :

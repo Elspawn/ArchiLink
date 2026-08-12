@@ -64,6 +64,8 @@ class Player:
             discord_id=data["discord_id"]
         )
         player.color = data.get("color", PLAYER_COLORS[int(player.player_slot) % len(PLAYER_COLORS)])
+        if player.color not in PLAYER_COLORS: # backward compatibility for old saves
+            player.color = PLAYER_COLORS[int(player.player_slot) % len(PLAYER_COLORS)]
         player.name_colored = f"\u001b[0;{player.color}m{player.player_name}\u001b[0m"
         player.new_items = [Item.load(item_data) for item_data in data.get("new_items", [])]
         player.todolist = [Item.load(item_data) for item_data in data.get("todolist", [])]
