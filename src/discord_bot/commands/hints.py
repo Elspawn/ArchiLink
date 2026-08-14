@@ -17,6 +17,18 @@ def strip_ansi(s):
 def ansi_ljust(s, width):
     return s + " " * (width - len(strip_ansi(s)))
 
+async def autocomplete_hint(interaction: discord.Interaction, current: str):
+    session, discord_profil = await get_current_player(interaction.client, interaction.channel.id, interaction.user)
+    if session is None or discord_profil is None :
+        return []
+    player = discord_profil.current_slot
+    game_playing = player.player_game
+    all_items = session.bot_client.datapackage["data"]["games"][game_playing]["id_to_item_name"].values()
+    filtered_items = [item for item in all_items if current.lower() in item.lower()]
+    # Limit the number of suggestions to 25 (Discord's limit for autocomplete)
+    filtered_items = filtered_items[:25]
+    return [app_commands.Choice(name=item, value=item) for item in filtered_items]
+
 class HintCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -114,6 +126,7 @@ class HintCog(commands.Cog):
     #TODO: Add autocomplete for the hint parameter, to suggest items that are in the game.
     @app_commands.command(name='hint', description="Send a hint to the MultiWorld Client.")
     @app_commands.describe(hint="The item you want to get a hint for.")
+    @app_commands.autocomplete(hint=autocomplete_hint)
     async def hint_slash(self, interaction: discord.Interaction, hint: str):
         response = await self._hint(interaction.channel.id, interaction.user, hint)
         await interaction.response.send_message(response)
