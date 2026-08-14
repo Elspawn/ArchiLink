@@ -51,6 +51,8 @@ class StatsCog(commands.Cog):
             plt.savefig(buf, format='png')
             buf.seek(0)
             file = discord.File(buf, filename='death_graph.png')
+            # Close the plot to free memory
+            plt.close()
             return file
             
     async def _globaldeaths(self, channel_id) :
@@ -70,6 +72,8 @@ class StatsCog(commands.Cog):
         plt.savefig(buf, format='png')
         buf.seek(0)
         file = discord.File(buf, filename='global_deaths.png')
+        # Close the plot to free memory
+        plt.close()
         return file
         
     async def _progress_graph(self, channel_id) :
@@ -110,6 +114,8 @@ Ask an admin to run !computeChecks command first."
         plt.savefig(buf, format='png')
         buf.seek(0)
         file = discord.File(buf, filename='progress_graph.png')
+        # Close the plot to free memory
+        plt.close()
         return file
 
     # ============================================================
