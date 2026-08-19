@@ -26,7 +26,7 @@ class ChatCog(commands.Cog):
     async def say_slash(self, interaction: discord.Interaction, message: str):
         await interaction.response.defer()
         response = await self._say(interaction.channel.id, message, interaction.user)
-        await interaction.response.followup.send(response)
+        await interaction.followup.send(response)
 
 async def setup(bot):
     await bot.add_cog(ChatCog(bot))

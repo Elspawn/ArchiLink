@@ -250,7 +250,7 @@ class HelpCog(commands.Cog):
     async def help(self, interaction: discord.Interaction, command: str = None):
         await interaction.response.defer()
         msg = await self._help(interaction.channel.id, command)
-        await interaction.response.followup.send(msg)
+        await interaction.followup.send(msg)
 
 async def setup(bot):
     await bot.add_cog(HelpCog(bot))

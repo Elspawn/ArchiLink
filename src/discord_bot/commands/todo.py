@@ -164,44 +164,44 @@ class TodoCog(commands.Cog):
         await interaction.response.defer()
         message = await self._wish(interaction.channel.id, interaction.user, item_name)
         if message:
-            await interaction.response.followup.send(message)
+            await interaction.followup.send(message)
 
     @app_commands.command(name='todo', description="Display your todo list.")
     async def todo_slash(self, interaction: discord.Interaction) :
         await interaction.response.defer()
         messages = await self._todo(interaction.channel.id, interaction.user)
         if messages is None:
-            await interaction.response.followup.send("An error occurred while retrieving your todo list. Please try again later.")
+            await interaction.followup.send("An error occurred while retrieving your todo list. Please try again later.")
         elif isinstance(messages, str):
-            await interaction.response.followup.send(messages)
+            await interaction.followup.send(messages)
         else:
             for msg in messages:
-                await interaction.response.followup.send(msg)
+                await interaction.followup.send(msg)
 
     @app_commands.command(name="cleartodo", description="Clear your todo list.")
     async def clear_todo_slash(self, interaction: discord.Interaction) :
         await interaction.response.defer()
         message = await self._clearTodo(interaction.channel.id, interaction.user)
         if message:
-            await interaction.response.followup.send(message)
+            await interaction.followup.send(message)
 
     @app_commands.command(name='removetodo', description="Remove an item from your todo list.")
     async def remove_todo_slash(self, interaction: discord.Interaction, item_name: str) :
         await interaction.response.defer()
         message = await self._removeTodo(interaction.channel.id, interaction.user, item_name)
         if message:
-            await interaction.response.followup.send(message)
+            await interaction.followup.send(message)
 
     @app_commands.command(name='wishlist', description="Display your wishlist.")
     async def wishlist_slash(self, interaction: discord.Interaction) :
         await interaction.response.defer()
         messages = await self._wishlist(interaction.channel.id, interaction.user)
         if messages is None:
-            await interaction.response.followup.send("An error occurred while retrieving your wishlist. Please try again later.")
+            await interaction.followup.send("An error occurred while retrieving your wishlist. Please try again later.")
         if isinstance(messages, str):
-            await interaction.response.followup.send(messages)
+            await interaction.followup.send(messages)
         else:
-            await interaction.response.followup.send(messages[0])
+            await interaction.followup.send(messages[0])
             for msg in messages[1:]:
                 await interaction.channel.send(msg)
         

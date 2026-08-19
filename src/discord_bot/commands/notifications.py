@@ -134,31 +134,31 @@ class NotificationCog(commands.Cog):
     async def new_slash(self, interaction: discord.Interaction, all: str = None):
         await interaction.response.defer()
         response = await self._new(interaction.channel.id, interaction.user, all)
-        await interaction.response.followup.send(response)
+        await interaction.followup.send(response)
 
     @app_commands.command(name='enableping', description="Enable ping when another player finds an item relevant to your todo list.")
     async def enableping_slash(self, interaction: discord.Interaction):
         await interaction.response.defer()
         response = await self._enableping(interaction.channel.id, interaction.user)
-        await interaction.response.followup.send(response)
+        await interaction.followup.send(response)
 
     @app_commands.command(name='disableping', description="Disable ping when another player finds an item relevant to your todo list.")
     async def disableping_slash(self, interaction: discord.Interaction):
         await interaction.response.defer()
         response = await self._disableping(interaction.channel.id, interaction.user)
-        await interaction.response.followup.send(response)
+        await interaction.followup.send(response)
 
     @app_commands.command(name='enablenewitems', description="Enable automatic sending of new items received in DM.")
     async def enablenewitems_slash(self, interaction: discord.Interaction):
         await interaction.response.defer()
         response = await self._enablenewitems(interaction.channel.id, interaction.user)
-        await interaction.response.followup.send(response)
+        await interaction.followup.send(response)
 
     @app_commands.command(name='disablenewitems', description="Disable automatic sending of new items received in DM.")
     async def disablenewitems_slash(self, interaction: discord.Interaction):
         await interaction.response.defer()
         response = await self._disablenewitems(interaction.channel.id, interaction.user)
-        await interaction.response.followup.send(response)
+        await interaction.followup.send(response)
 
 async def setup(bot):
     await bot.add_cog(NotificationCog(bot))
