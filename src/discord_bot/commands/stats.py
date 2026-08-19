@@ -162,37 +162,42 @@ Ask an admin to run !computeChecks command first."
     
     @app_commands.command(name='wastedonarchipelago', description="Display the time you have played. The time is updated when you stop playing.")
     async def wastedOnArchipelago(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._wastedOnArchipelago(interaction.channel.id, interaction.user)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name='deaths', description="Display the number of deaths you have in this Archipelago Multiworld.")
     async def deaths(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._deaths(interaction.channel.id, interaction.user)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name='deathgraph', description="Display a graph of your deaths in this Archipelago Multiworld.")
     async def deathgraph(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._deathgraph(interaction.channel.id, interaction.user)
         if isinstance(response, str):
-            await interaction.response.send_message(response)
+            await interaction.response.followup.send(response)
         else:
-            await interaction.response.send_message(file=response)
+            await interaction.response.followup.send(file=response)
 
     @app_commands.command(name='globaldeaths', description="Display a graph of the number of deaths of all players in this Archipelago Multiworld.")
     async def globaldeaths(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._globaldeaths(interaction.channel.id)
         if isinstance(response, str):
-            await interaction.response.send_message(response)
+            await interaction.response.followup.send(response)
         else:
-            await interaction.response.send_message(file=response)
+            await interaction.response.followup.send(file=response)
 
     @app_commands.command(name='progressgraph', description="Display a graph of the progress of all players in this Archipelago Multiworld.")
     async def progress_graph(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._progress_graph(interaction.channel.id)
         if isinstance(response, str):
-            await interaction.response.send_message(response)
+            await interaction.response.followup.send(response)
         else:
-            await interaction.response.send_message(file=response)
-            
+            await interaction.response.followup.send(file=response)
+
 async def setup(bot):
     await bot.add_cog(StatsCog(bot))

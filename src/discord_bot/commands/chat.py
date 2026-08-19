@@ -24,8 +24,9 @@ class ChatCog(commands.Cog):
 
     @app_commands.command(name='say', description='Send a message to the MultiWorld Client')
     async def say_slash(self, interaction: discord.Interaction, message: str):
+        await interaction.response.defer()
         response = await self._say(interaction.channel.id, message, interaction.user)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
 async def setup(bot):
     await bot.add_cog(ChatCog(bot))

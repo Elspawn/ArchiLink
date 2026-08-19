@@ -260,43 +260,51 @@ Please delete the existing world before creating a new one or use a different no
     
     @app_commands.command(name='computechecks', description='Compute checks for all players in the world associated with this channel.')
     async def compute_checks_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._computeChecks(interaction.channel.id)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name="fastconfig", description="Quickly create a world with a default configuration.")
     async def fast_config_slash(self, interaction: discord.Interaction, ip_address: str, port: str, password: str = None):
+        await interaction.response.defer()
         response = await self._fastConfig(interaction.channel.id, ip_address, port, interaction.user, password)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name="newworld", description="Create a new world. Usage: /newWorld")
     async def new_world_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._newWorld(interaction.channel.id, interaction.user)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name="deleteworld", description="Delete the world associated with the current channel.")
     async def delete_world_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._deleteWorld(interaction.channel.id, interaction.user)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name="listworlds", description="List all worlds in the current discord server.")
     async def list_worlds_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._listWorlds(interaction.channel.id)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name="isadmin", description="Check if a user is an admin.")
     async def isadmin_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._isAdmin(interaction.channel.id, interaction.user)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name="deactivate", description="Deactivate the bot and stop tracking this world.")
     async def deactivate_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._deactivate(interaction.channel.id)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
     @app_commands.command(name="activate", description="Activate the bot and start tracking this world.")
     async def activate_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._activate(interaction.channel.id)
-        await interaction.response.send_message(response)
+        await interaction.response.followup.send(response)
 
 async def setup(bot):
     await bot.add_cog(AdminCog(bot))

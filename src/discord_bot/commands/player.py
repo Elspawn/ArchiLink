@@ -186,47 +186,53 @@ You are currently registered to : {', '.join([p.player_name for p in discord_pro
     
     @app_commands.command(name='players', description='List all players in the current multiworld.')
     async def players_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._players(interaction.channel.id)
         if response is not None:
-            await interaction.response.send_message(response)
+            await interaction.response.followup.send(response)
             
     @app_commands.command(name='register', description='Register yourself to a player.')
     @app_commands.describe(player_name='The name of the player you want to register to.')
     @app_commands.autocomplete(player_name=autocomplete_player_name)
     async def register_slash(self, interaction: discord.Interaction, player_name: str):
+        await interaction.response.defer()
         response = await self._register(interaction.channel.id, interaction.user, player_name)
         if response is not None:
-            await interaction.response.send_message(response)
+            await interaction.response.followup.send(response)
             
     @app_commands.command(name='unregister', description='Unregister yourself from a player.')
     @app_commands.describe(player_name='The name of the player you want to unregister from. If not provided, you will be unregistered from all registered players.')
     @app_commands.autocomplete(player_name=autocomplete_player_name)
     async def unregister_slash(self, interaction: discord.Interaction, player_name: str = None):
+        await interaction.response.defer()
         response = await self._unregister(interaction.channel.id, interaction.user, player_name)
         if response is not None:
-            await interaction.response.send_message(response)
+            await interaction.response.followup.send(response)
             
     @app_commands.command(name='current', description='Show the player you are currently tracking.')
     async def current_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._current(interaction.channel.id, interaction.user)
         if response is not None:
-            await interaction.response.send_message(response)
-    
+            await interaction.response.followup.send(response)
+
     @app_commands.command(name='switch', description='Switch to another player you are registered to.')
     @app_commands.describe(player_name='The name of the player you want to switch to. If not provided, you will switch to the next player in your registered list.')
     @app_commands.autocomplete(player_name=autocomplete_player_name)
     async def switch_slash(self, interaction: discord.Interaction, player_name: str = None):
+        await interaction.response.defer()
         response = await self._switch(interaction.channel.id, interaction.user, player_name)
         if response is not None:
-            await interaction.response.send_message(response)
-            
+            await interaction.response.followup.send(response)
+
     @app_commands.command(name='setcolor', description='Set your preferred color.')
     @app_commands.describe(color='The color you want to set. Choose from: black, red, green, yellow, blue, magenta, cyan, white.')
     @app_commands.autocomplete(color=autocomplete_color)
     async def setcolor_slash(self, interaction: discord.Interaction, color: str):
+        await interaction.response.defer()
         response = await self._setcolor(interaction.channel.id, interaction.user, color)
         if response is not None:
-            await interaction.response.send_message(response)
-            
+            await interaction.response.followup.send(response)
+
 async def setup(bot):
     await bot.add_cog(PlayerCog(bot))

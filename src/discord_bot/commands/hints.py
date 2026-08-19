@@ -128,17 +128,19 @@ class HintCog(commands.Cog):
     @app_commands.describe(hint="The item you want to get a hint for.")
     @app_commands.autocomplete(hint=autocomplete_hint)
     async def hint_slash(self, interaction: discord.Interaction, hint: str):
+        await interaction.response.defer()
         response = await self._hint(interaction.channel.id, interaction.user, hint)
-        await interaction.response.send_message(response)
-            
+        await interaction.response.followup.send(response)
+
     @app_commands.command(name='allhints', description="Get all hints available for the current player.")
     async def allhints_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         response = await self._allhints(interaction.channel.id, interaction.user)
         if isinstance(response, str):
-            await interaction.response.send_message(response)
+            await interaction.response.followup.send(response)
         elif isinstance(response, tuple):
             messages1, messages2 = response
-            await interaction.response.send_message(messages1[0])
+            await interaction.response.followup.send(messages1[0])
             for msg in messages1[1:]:
                 await interaction.channel.send(msg)
             for msg in messages2:

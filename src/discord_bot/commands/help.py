@@ -248,8 +248,9 @@ class HelpCog(commands.Cog):
     @app_commands.command(name='help', description="Display help information for commands.")
     @app_commands.describe(command="The command to get help for.")
     async def help(self, interaction: discord.Interaction, command: str = None):
+        await interaction.response.defer()
         msg = await self._help(interaction.channel.id, command)
-        await interaction.response.send_message(msg)
-        
+        await interaction.response.followup.send(msg)
+
 async def setup(bot):
     await bot.add_cog(HelpCog(bot))
