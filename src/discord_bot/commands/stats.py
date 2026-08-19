@@ -89,15 +89,25 @@ Ask an admin to run !computeChecks command first."
             checks_dict[player.player_name] = player.checked_locations
             percentage_dict[player.player_name] = percentage
         num_players = len(percentage_dict)
-        plt.figure(figsize=(max(10, num_players*0.5), 8))
+        plt.figure(figsize=(max(10, num_players * 0.5), 8))
         values = list(percentage_dict.values())
         norm = mcolors.Normalize(vmin=0, vmax=100)
         cmap = cm.get_cmap('coolwarm')
         colors = [cmap(norm(v)) for v in values]
-        bars = plt.bar(percentage_dict.keys(), percentage_dict.values(), color=colors)
-        # Add value labels on top of bars
-        for bar, player_name in zip(bars, percentage_dict.keys()): 
+        bars = plt.bar(range(num_players), values, color=colors)
+        for bar, player_name in zip(bars, percentage_dict.keys()):
             height = bar.get_height()
+            plt.text(
+                bar.get_x() + bar.get_width() / 2,
+                height / 2,
+                player_name,
+                ha='center',
+                va='center',
+                rotation=90,
+                fontsize=9,
+                color='white',
+                fontweight='bold'
+            )
             plt.text(
                 bar.get_x() + bar.get_width() / 2,
                 height + 1,
@@ -109,12 +119,12 @@ Ask an admin to run !computeChecks command first."
         plt.title('Progress Graph')
         plt.xlabel('Player')
         plt.ylabel('Percentage of checked locations')
-        plt.xticks(rotation=45)
+        plt.xticks(range(num_players), [''] * num_players)
+        plt.ylim(0, 100)
         buf = BytesIO()
-        plt.savefig(buf, format='png')
+        plt.savefig(buf, format='png', bbox_inches='tight')
         buf.seek(0)
         file = discord.File(buf, filename='progress_graph.png')
-        # Close the plot to free memory
         plt.close()
         return file
 
