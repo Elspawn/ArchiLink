@@ -123,7 +123,6 @@ class HintCog(commands.Cog):
     # Slash commands
     # ============================================================
     
-    #TODO: Add autocomplete for the hint parameter, to suggest items that are in the game.
     @app_commands.command(name='hint', description="Send a hint to the MultiWorld Client.")
     @app_commands.describe(hint="The item you want to get a hint for.")
     @app_commands.autocomplete(hint=autocomplete_hint)
