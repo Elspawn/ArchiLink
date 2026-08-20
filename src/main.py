@@ -3,10 +3,34 @@ from discord_bot.bot import create_bot
 from dotenv import load_dotenv
 import asyncio
 import logging
+from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
 import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Create a logs directory at the same level as src if it doesn't exist
+log_dir = Path(__file__).parent.parent / "logs"
+log_dir.mkdir(exist_ok=True)
+log_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
 logger = logging.getLogger("ArchiLink")
+logger.setLevel(logging.INFO)
+
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(log_format)
+
+file_handler = TimedRotatingFileHandler(
+    filename="logs/archilink.log",
+    when="midnight",
+    interval=1,
+    backupCount=30,
+    encoding="utf-8"
+)
+
+file_handler.suffix = "%Y-%m-%d"
+file_handler.setFormatter(log_format)
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+
 # Put discord logger to warning to avoid cluttering the console with discord debug messages
 logging.getLogger("discord").setLevel(logging.WARNING) 
 
