@@ -116,7 +116,7 @@ Ask an admin to run !computeChecks command first."
                 va='bottom',
                 fontsize=9
             )
-        plt.title('Progress Graph')
+        plt.title('Progress Graph', pad=25)
         plt.xlabel('Player')
         plt.ylabel('Percentage of checked locations')
         plt.xticks(range(num_players), [''] * num_players)
